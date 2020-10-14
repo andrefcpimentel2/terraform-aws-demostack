@@ -135,7 +135,7 @@ sudo mkdir -p /workstation/nomad
 cd /workstation/nomad
 sudo git clone https://github.com/andrefcpimentel2/nomad_jobs
 cd nomad_jobs
-git checkout hackaton_q3
+sudo git checkout hackaton_q3
 
 if [ ${run_nomad_jobs} == 0 ]
 then
