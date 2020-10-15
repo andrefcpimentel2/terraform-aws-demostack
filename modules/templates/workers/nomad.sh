@@ -9,6 +9,7 @@ echo "--> Create a Directory to Use as a Mount Target"
 sudo mkdir -p /opt/mysql/data/
 sudo mkdir -p /opt/mongodb/data/
 sudo mkdir -p /opt/prometheus/data/
+sudo mkdir -p /var/lib/postgresql/data/
 
 
 echo "--> Installing CNI plugin"
@@ -50,7 +51,11 @@ client {
     path      = "/opt/mongodb/data"
     read_only = false
   }
-  host_volume "prometheus_mount" {
+  host_volume "pgdata" {
+    path      = "/var/lib/postgresql/data"
+    read_only = false
+  }
+   host_volume "prometheus_mount" {
     path      = "/opt/prometheus/data/"
     read_only = false
   }
