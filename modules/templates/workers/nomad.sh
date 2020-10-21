@@ -165,11 +165,8 @@ echo "--> Running  Nomad Job"
 
  nomad run hashibo.nomad
  nomad run nginx-pki.nomad
- nomad run hackaton_q3/payments.nomad
- nomad run hackaton_q3/product-db.nomad
- nomad run hackaton_q3/product-api.nomad
- nomad run hackaton_q3/public-api.nomad
- nomad run hackaton_q3/frontend.nomad
+ nomad run hackaton_q3/hashicups.nomad
+
 
 fi
 
