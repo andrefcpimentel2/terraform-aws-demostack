@@ -159,6 +159,7 @@ echo "--> Running  Nomad Job"
 
  nomad run hashibo.nomad
  nomad run nginx-pki.nomad
+ nomad run oracledb.nomad
 
 fi
 
