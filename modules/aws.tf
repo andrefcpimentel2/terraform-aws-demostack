@@ -109,7 +109,14 @@ resource "aws_security_group" "demostack" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
+  
+#Demostack OracleDB
+  ingress {
+    from_port   = 1521
+    to_port     = 1521
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
 #Demostack HTTPS
   ingress {
