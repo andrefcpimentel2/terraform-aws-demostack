@@ -174,7 +174,7 @@ ingress {
   }
    ingress {
     from_port   = 9090
-    to_port     = 9090
+    to_port     = 9103
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
