@@ -51,6 +51,9 @@ data "template_file" "servers" {
     vault_ent_url    = var.vault_ent_url
     vault_root_token = random_id.vault-root-token.hex
     vault_servers    = var.servers
+    rds_address      = var.rds_address
+    rds_username     = var.rds_username
+    rds_password     = var.rds_password
   }
 }
 

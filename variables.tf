@@ -210,3 +210,20 @@ variable "primary_datacenter"{
   description = "the primary datacenter for mesh gateways"
   default = ""
 }
+
+variable "rds_address"{
+
+  default = ""
+}
+
+variable "rds_username"{
+
+  default = ""
+}
+
+variable "rds_password"{
+
+  default = ""
+}
+
+

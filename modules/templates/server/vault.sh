@@ -2,6 +2,7 @@
 echo "==> Vault (server)"
 # Vault expects the key to be concatenated with the CA
 sudo mkdir -p /etc/vault.d/tls/
+sudo mkdir -p /etc/vault.d/plugins/
 sudo tee /etc/vault.d/tls/vault.crt > /dev/null <<EOF
 $(cat /etc/ssl/certs/me.crt)
 $(cat /usr/local/share/ca-certificates/01-me.crt)
@@ -43,6 +44,7 @@ telemetry {
   prometheus_retention_time = "30s",
   disable_hostname = true
 }
+plugin_directory = "/etc/vault.d/plugins"
 api_addr = "https://$(public_ip):8200"
 disable_mlock = true
 ui = true
@@ -338,5 +340,25 @@ vault write /data-protection/masking/transform/template/card-mask type=regex \
         
 echo "-->Test transform"
 vault write /data-protection/masking/transform/encode/ccn value=2345-2211-3333-4356
+
+echo "-->Installing Oracle DB plugin"
+sudo wget -P /tmp/ https://releases.hashicorp.com/vault-plugin-database-oracle/0.2.1/vault-plugin-database-oracle_0.2.1_linux_amd64.zip 
+
+sudo unzip -q /tmp/vault-plugin-database-oracle_0.2.1_linux_amd64.zip -d /etc/vault.d/plugins/
+
+shasum -a 256 vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
+
+vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
+    sha256=$(cat /tmp/oracle-plugin.sha256 | head -n1 | awk '{print $1;}') \
+    command="vault-plugin-database-oracle"
+
+vault secrets enable database
+
+vault write database/config/oracle plugin_name \
+    vault-plugin-database-oracle \
+    allowed_roles="*" \
+    connection_url='{{username}}/{{password}}@//${rds_address}:1521/oracle_service' \
+    username='${rds_username}' \
+    password='${rds_password}'
 
 echo "==> Vault is done!"

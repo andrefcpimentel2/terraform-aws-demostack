@@ -60,6 +60,9 @@ module "primarycluster" {
   run_nomad_jobs       = var.run_nomad_jobs
   host_access_ip       = local.host_access_ip
   primary_datacenter   = var.primary_datacenter
+  rds_address          = var.rds_address
+  rds_username         = var.rds_username
+  rds_password         = var.rds_password
 
   # EMEA-SE-PLAYGROUND
   ca_key_algorithm      = data.terraform_remote_state.emea_se_playground_tls_root_certificate.outputs.ca_key_algorithm
