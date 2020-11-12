@@ -345,8 +345,10 @@ echo "-->Installing Oracle DB plugin"
 sudo wget -P /tmp/ https://releases.hashicorp.com/vault-plugin-database-oracle/0.2.1/vault-plugin-database-oracle_0.2.1_linux_amd64.zip 
 
 sudo unzip -q /tmp/vault-plugin-database-oracle_0.2.1_linux_amd64.zip -d /etc/vault.d/plugins/
+sudo chmod +x /etc/vault.d/plugins/vault-plugin-database-oracle
 
-shasum -a 256 vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
+shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
+sudo chmod 777 tmp/oracle-plugin.sha256
 
 vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
     sha256=$(cat /tmp/oracle-plugin.sha256 | head -n1 | awk '{print $1;}') \
@@ -354,8 +356,8 @@ vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
 
 vault secrets enable database
 
-vault write database/config/oracle plugin_name \
-    vault-plugin-database-oracle \
+vault write database/config/oracle  \
+    plugin_name=vault-plugin-database-oracle \
     allowed_roles="*" \
     connection_url='{{username}}/{{password}}@//${rds_address}:1521/oracle_service' \
     username='${rds_username}' \
