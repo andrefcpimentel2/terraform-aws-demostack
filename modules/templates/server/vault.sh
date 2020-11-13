@@ -349,6 +349,7 @@ sudo chmod +x /etc/vault.d/plugins/vault-plugin-database-oracle
 
 shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
 sudo chmod 777 tmp/oracle-plugin.sha256
+sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
 
 vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
     sha256=$(cat /tmp/oracle-plugin.sha256 | head -n1 | awk '{print $1;}') \
@@ -362,5 +363,7 @@ vault write database/config/oracle  \
     connection_url='{{username}}/{{password}}@//${rds_address}:1521/oracle_service' \
     username='${rds_username}' \
     password='${rds_password}'
+
+    
 
 echo "==> Vault is done!"
