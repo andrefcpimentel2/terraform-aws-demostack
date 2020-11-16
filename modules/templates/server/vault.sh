@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
-echo "==> Vault (server)"
+set -x
+exec > >(tee /var/log/tf-user-data.log|logger -t user-data ) 2>&1
+
+logger() {
+  DT=$(date '+%Y/%m/%d %H:%M:%S')
+  echo "$DT $0: $1"
+}
+
+logger "Running"
+
+logger "==> Vault (server)"
 # Vault expects the key to be concatenated with the CA
 sudo mkdir -p /etc/vault.d/tls/
 sudo mkdir -p /etc/vault.d/plugins/
@@ -13,16 +23,16 @@ echo "==> value of enterprise is ${enterprise}"
 
 if [ ${enterprise} == 0 ]
 then
-echo "--> Fetching Vault OSS"
+logger "--> Fetching Vault OSS"
 install_from_url "vault" "${vault_url}"
 
 else
-echo "--> Fetching Vault Ent"
+logger "--> Fetching Vault Ent"
 install_from_url "vault" "${vault_ent_url}"
 fi
 
 
-echo "--> Writing configuration"
+logger "--> Writing configuration"
 sudo mkdir -p /etc/vault.d
 sudo tee /etc/vault.d/config.hcl > /dev/null <<EOF
 cluster_name = "${namespace}-demostack"
@@ -50,14 +60,14 @@ disable_mlock = true
 ui = true
 EOF
 
-echo "--> Writing profile"
+logger "--> Writing profile"
 sudo tee /etc/profile.d/vault.sh > /dev/null <<"EOF"
 alias vualt="vault"
 export VAULT_ADDR="https://active.vault.service.consul:8200"
 EOF
 source /etc/profile.d/vault.sh
 
-echo "--> Generating systemd configuration"
+logger "--> Generating systemd configuration"
 sudo tee /etc/systemd/system/vault.service > /dev/null <<"EOF"
 [Unit]
 Description=Vault
@@ -77,7 +87,7 @@ sudo systemctl enable vault
 sudo systemctl start vault
 sleep 8
 
-echo "--> Initializing vault"
+logger "--> Initializing vault"
 consul lock tmp/vault/lock "$(cat <<"EOF"
 set -e
 sleep 2
@@ -322,26 +332,26 @@ echo "--> Setting up Github auth"
  echo "-->Enabling transform"
 vault secrets enable  -path=/data-protection/masking/transform transform
 
-echo "-->Configuring CCN role for transform"
+logger "-->Configuring CCN role for transform"
 vault write /data-protection/masking/transform/role/ccn transformations=ccn
 
 
-echo "-->Configuring transformation template"
+logger "-->Configuring transformation template"
 vault write /data-protection/masking/transform/transformation/ccn \
         type=masking \
         template="card-mask" \
         masking_character="#" \
         allowed_roles=ccn
         
-echo "-->Configuring template masking"
+logger "-->Configuring template masking"
 vault write /data-protection/masking/transform/template/card-mask type=regex \
         pattern="(\d{4})-(\d{4})-(\d{4})-\d{4}" \
         alphabet="builtin/numeric"
         
-echo "-->Test transform"
+logger "-->Test transform"
 vault write /data-protection/masking/transform/encode/ccn value=2345-2211-3333-4356
 
-echo "-->Installing Oracle DB plugin"
+logger "-->Installing Oracle DB plugin"
 sudo wget -P /tmp/ https://releases.hashicorp.com/vault-plugin-database-oracle/0.2.1/vault-plugin-database-oracle_0.2.1_linux_amd64.zip 
 
 sudo unzip -q /tmp/vault-plugin-database-oracle_0.2.1_linux_amd64.zip -d /etc/vault.d/plugins/
@@ -351,12 +361,15 @@ shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-pl
 sudo chmod 777 tmp/oracle-plugin.sha256
 sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
 
+logger "==> Enable Oracle Plugin"
 vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
     sha256=$(cat /tmp/oracle-plugin.sha256 | head -n1 | awk '{print $1;}') \
     command="vault-plugin-database-oracle"
 
+logger "==> Enable Database path"
 vault secrets enable database
 
+logger "==> Configuring Oracle Plugin"
 vault write database/config/oracle  \
     plugin_name=vault-plugin-database-oracle \
     allowed_roles="*" \
@@ -364,6 +377,10 @@ vault write database/config/oracle  \
     username='${rds_username}' \
     password='${rds_password}'
 
-    
+logger "==> Configuring Oracle DB role"
+vault write database/roles/my-role db_name=oracle creation_statements="CREATE USER {{name}} IDENTIFIED BY {{password}};GRANT SELECT ON session_privs TO {{name}};" default_ttl="1h" max_ttl="24h"
 
-echo "==> Vault is done!"
+logger "==> Creating Oracle DB Dynamic secret"
+vault read database/creds/my-role
+
+logger "==> Vault is done!"
