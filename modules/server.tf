@@ -54,6 +54,7 @@ data "template_file" "servers" {
     rds_address      = var.rds_address
     rds_username     = var.rds_username
     rds_password     = var.rds_password
+    vault_lb_addr    = "https://${aws_route53_record.vault.fqdn}:8200"
   }
 }
 

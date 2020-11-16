@@ -55,7 +55,7 @@ telemetry {
   disable_hostname = true
 }
 plugin_directory = "/etc/vault.d/plugins"
-api_addr = "https://$(public_ip):8200"
+api_addr = "${vault_lb_addr}"
 disable_mlock = true
 ui = true
 EOF
