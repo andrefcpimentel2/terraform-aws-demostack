@@ -54,11 +54,8 @@ telemetry {
   prometheus_retention_time = "30s",
   disable_hostname = true
 }
-replication {
-      resolver_discover_servers = false
-}
-api_addr = "${vault_api_addr}"
 plugin_directory = "/etc/vault.d/plugins"
+api_addr = "https://$(public_ip):8200"
 disable_mlock = true
 ui = true
 EOF
@@ -376,6 +373,7 @@ sudo apt install -y libaio1
 # Create Oracle environment script
 export ORACLE_HOME=/usr/lib/oracle/19.3/client64
 
+
 logger "-->Installing Oracle DB plugin"
 sudo wget -P /tmp/ https://releases.hashicorp.com/vault-plugin-database-oracle/0.2.1/vault-plugin-database-oracle_0.2.1_linux_amd64.zip 
 
@@ -385,8 +383,6 @@ sudo chmod +x /etc/vault.d/plugins/vault-plugin-database-oracle
 shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
 sudo chmod 777 /tmp/oracle-plugin.sha256
 #sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
-
-export VAULT_SKIP_VERIFY=true
 
 logger "==> Enable Oracle Plugin"
 vault write sys/plugins/catalog/database/vault-plugin-database-oracle \

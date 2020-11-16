@@ -120,13 +120,13 @@ sudo tee -a /etc/hosts > /dev/null <<EOF
 $(private_ip)  ${node_name}.node.consul
 EOF
 
-# echo "--> Installing dnsmasq"
-# sudo apt-get install -y -q dnsmasq
+echo "--> Installing dnsmasq"
+sudo apt-get install -y -q dnsmasq
 
-# echo "--> Configuring DNSmasq"
-# sudo bash -c "cat >/etc/dnsmasq.d/10-consul" << EOF
-# server=/consul/127.0.0.1#8600
-# EOF
+echo "--> Configuring DNSmasq"
+sudo bash -c "cat >/etc/dnsmasq.d/10-consul" << EOF
+server=/consul/127.0.0.1#8600
+EOF
 
 echo "--> Install Envoy"
 curl -sL 'https://getenvoy.io/gpg' | sudo apt-key add -
