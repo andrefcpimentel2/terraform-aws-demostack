@@ -58,6 +58,7 @@ plugin_directory = "/etc/vault.d/plugins"
 api_addr = "${vault_lb_addr}"
 disable_mlock = true
 ui = true
+tls_skip_verify = true
 EOF
 
 logger "--> Writing profile"
@@ -382,6 +383,7 @@ sudo chmod +x /etc/vault.d/plugins/vault-plugin-database-oracle
 shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
 sudo chmod 777 /tmp/oracle-plugin.sha256
 #sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
+
 
 logger "==> Enable Oracle Plugin"
 vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
