@@ -1,11 +1,9 @@
-data "http" "myipaddr" {
-    url = "http://ipv4.icanhazip.com"
-}
 
-locals {
-   host_access_ip = ["${chomp(data.http.myipaddr.body)}/32"]
-}
 
+variable "host_access_ip" {
+  description = "ip for whitelist port 22"
+
+}
 
 variable "region" {
   description = "The region to create resources."
