@@ -383,6 +383,7 @@ shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-pl
 sudo chmod 777 /tmp/oracle-plugin.sha256
 #sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
 
+export VAULT_SKIP_VERIFY=true
 
 logger "==> Enable Oracle Plugin"
 vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
