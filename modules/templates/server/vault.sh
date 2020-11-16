@@ -358,7 +358,7 @@ sudo unzip -q /tmp/vault-plugin-database-oracle_0.2.1_linux_amd64.zip -d /etc/va
 sudo chmod +x /etc/vault.d/plugins/vault-plugin-database-oracle
 
 shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
-sudo chmod 777 tmp/oracle-plugin.sha256
+sudo chmod 777 /tmp/oracle-plugin.sha256
 sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
 
 logger "==> Enable Oracle Plugin"
