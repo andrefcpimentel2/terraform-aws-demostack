@@ -371,13 +371,7 @@ sudo alien -i oracle-instantclient19.3-*.rpm
 sudo apt install -y libaio1
 
 # Create Oracle environment script
-sudo tee /etc/profile.d/oracle-env.sh > /dev/null <<EOF
-export LD_LIBRARY_PATH=/usr/lib/oracle/19.3/client64/lib/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-export ORACLE_HOME=/usr/lib/oracle/19.3/client64 
-EOF
-sudo chmod +x /etc/profile.d/oracle-env.sh
-sudo /etc/profile.d/oracle-env.sh
-
+export ORACLE_HOME=/usr/lib/oracle/19.3/client64
 
 logger "-->Installing Oracle DB plugin"
 sudo wget -P /tmp/ https://releases.hashicorp.com/vault-plugin-database-oracle/0.2.1/vault-plugin-database-oracle_0.2.1_linux_amd64.zip 
