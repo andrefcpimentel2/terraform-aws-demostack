@@ -362,25 +362,25 @@ sudo chmod 777 /tmp/oracle-plugin.sha256
 sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
 
 logger "==> Enable Oracle Plugin"
-vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
-    sha256=$(cat /tmp/oracle-plugin.sha256 | head -n1 | awk '{print $1;}') \
-    command="vault-plugin-database-oracle"
+# vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
+#     sha256=$(cat /tmp/oracle-plugin.sha256 | head -n1 | awk '{print $1;}') \
+#     command="vault-plugin-database-oracle"
 
-logger "==> Enable Database path"
-vault secrets enable database
+# logger "==> Enable Database path"
+# vault secrets enable database
 
-logger "==> Configuring Oracle Plugin"
-vault write database/config/oracle  \
-    plugin_name=vault-plugin-database-oracle \
-    allowed_roles="*" \
-    connection_url='{{username}}/{{password}}@//${rds_address}:1521/oracle_service' \
-    username='${rds_username}' \
-    password='${rds_password}'
+# logger "==> Configuring Oracle Plugin"
+# vault write database/config/oracle  \
+#     plugin_name=vault-plugin-database-oracle \
+#     allowed_roles="*" \
+#     connection_url='{{username}}/{{password}}@//${rds_address}:1521/oracle_service' \
+#     username='${rds_username}' \
+#     password='${rds_password}'
 
-logger "==> Configuring Oracle DB role"
-vault write database/roles/my-role db_name=oracle creation_statements="CREATE USER {{name}} IDENTIFIED BY {{password}};GRANT SELECT ON session_privs TO {{name}};" default_ttl="1h" max_ttl="24h"
+# logger "==> Configuring Oracle DB role"
+# vault write database/roles/my-role db_name=oracle creation_statements="CREATE USER {{name}} IDENTIFIED BY {{password}};GRANT SELECT ON session_privs TO {{name}};" default_ttl="1h" max_ttl="24h"
 
-logger "==> Creating Oracle DB Dynamic secret"
-vault read database/creds/my-role
+# logger "==> Creating Oracle DB Dynamic secret"
+# vault read database/creds/my-role
 
 logger "==> Vault is done!"
