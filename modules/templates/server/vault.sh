@@ -54,8 +54,11 @@ telemetry {
   prometheus_retention_time = "30s",
   disable_hostname = true
 }
+replication {
+      resolver_discover_servers = false
+}
+api_addr = "${vault_api_addr}"
 plugin_directory = "/etc/vault.d/plugins"
-api_addr = "${vault_lb_addr}"
 disable_mlock = true
 ui = true
 EOF
