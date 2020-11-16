@@ -351,6 +351,32 @@ vault write /data-protection/masking/transform/template/card-mask type=regex \
 logger "-->Test transform"
 vault write /data-protection/masking/transform/encode/ccn value=2345-2211-3333-4356
 
+logger "-->install Oracle dependencies"
+
+printf "Automated installer of oracle client for Ubuntu" 
+# Install dependencies
+sudo apt install -y alien
+
+# Download files. Example specific to 19.3 
+# Some links were not correct on the downloads page
+# (still pointing to a license page), but easy enough to
+# figure out from working ones 
+wget https://download.oracle.com/otn_software/linux/instantclient/193000/oracle-instantclient19.3-basiclite-19.3.0.0.0-1.x86_64.rpm
+wget https://download.oracle.com/otn_software/linux/instantclient/193000/oracle-instantclient19.3-devel-19.3.0.0.0-1.x86_64.rpm
+wget https://download.oracle.com/otn_software/linux/instantclient/193000/oracle-instantclient19.3-sqlplus-19.3.0.0.0-1.x86_64.rpm 
+
+# Install all 3 RPM's downloaded 
+sudo alien -i oracle-instantclient19.3-*.rpm
+
+# Install SQL*Plus dependency  
+sudo apt install -y libaio1
+
+# Create Oracle environment script
+printf "\n\n# Oracle Client environment\n \
+export LD_LIBRARY_PATH=/usr/lib/oracle/19.3/client64/lib/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+export ORACLE_HOME=/usr/lib/oracle/19.3/client64\n" | sudo tee /etc/profile.d/oracle-env.sh > /dev/null
+. /etc/profile.d/oracle-env.sh
+
 logger "-->Installing Oracle DB plugin"
 sudo wget -P /tmp/ https://releases.hashicorp.com/vault-plugin-database-oracle/0.2.1/vault-plugin-database-oracle_0.2.1_linux_amd64.zip 
 
