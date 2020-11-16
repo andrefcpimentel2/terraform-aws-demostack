@@ -58,7 +58,6 @@ plugin_directory = "/etc/vault.d/plugins"
 api_addr = "${vault_lb_addr}"
 disable_mlock = true
 ui = true
-tls_skip_verify = true
 EOF
 
 logger "--> Writing profile"
