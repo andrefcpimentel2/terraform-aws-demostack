@@ -353,7 +353,6 @@ vault write /data-protection/masking/transform/encode/ccn value=2345-2211-3333-4
 
 logger "-->install Oracle dependencies"
 
-printf "Automated installer of oracle client for Ubuntu" 
 # Install dependencies
 sudo apt install -y alien
 
@@ -372,9 +371,9 @@ sudo alien -i oracle-instantclient19.3-*.rpm
 sudo apt install -y libaio1
 
 # Create Oracle environment script
-printf "\n\n# Oracle Client environment\n \
+
 export LD_LIBRARY_PATH=/usr/lib/oracle/19.3/client64/lib/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-export ORACLE_HOME=/usr/lib/oracle/19.3/client64\n" | sudo tee /etc/profile.d/oracle-env.sh > /dev/null
+export ORACLE_HOME=/usr/lib/oracle/19.3/client64 | sudo tee /etc/profile.d/oracle-env.sh > /dev/null
 . /etc/profile.d/oracle-env.sh
 
 logger "-->Installing Oracle DB plugin"
