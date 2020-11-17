@@ -2,6 +2,7 @@
 echo "==> Vault (server)"
 # Vault expects the key to be concatenated with the CA
 sudo mkdir -p /etc/vault.d/tls/
+sudo mkdir -p /etc/vault.d/plugins/
 sudo tee /etc/vault.d/tls/vault.crt > /dev/null <<EOF
 $(cat /etc/ssl/certs/me.crt)
 $(cat /usr/local/share/ca-certificates/01-me.crt)
@@ -21,14 +22,17 @@ install_from_url "vault" "${vault_ent_url}"
 fi
 
 
+
 echo "--> Writing configuration"
 sudo mkdir -p /etc/vault.d
 sudo tee /etc/vault.d/config.hcl > /dev/null <<EOF
 cluster_name = "${namespace}-demostack"
+
 storage "consul" {
   path = "vault/"
   service = "vault"
 }
+
 listener "tcp" {
   address       = "0.0.0.0:8200"
   tls_cert_file = "/etc/vault.d/tls/vault.crt"
@@ -43,7 +47,13 @@ telemetry {
   prometheus_retention_time = "30s",
   disable_hostname = true
 }
-api_addr = "https://$(public_ip):8200"
+
+replication {
+      resolver_discover_servers = false
+}
+
+api_addr = "${vault_api_addr}"
+plugin_directory = "/etc/vault.d/plugins"
 disable_mlock = true
 ui = true
 EOF
@@ -76,7 +86,7 @@ sudo systemctl start vault
 sleep 8
 
 echo "--> Initializing vault"
-consul lock tmp/vault/lock "$(cat <<"EOF"
+consul lock -name=vault-init tmp/vault/lock "$(cat <<"EOF"
 set -e
 sleep 2
 export VAULT_ADDR="https://127.0.0.1:8200"
@@ -277,6 +287,11 @@ path "sys/control-group/request" {
     capabilities = ["create", "update"]
 }
 
+# all access to boundary namespace
+path "boundary/*" {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
 
 EOR
 } ||
@@ -330,13 +345,96 @@ vault write /data-protection/masking/transform/transformation/ccn \
         template="card-mask" \
         masking_character="#" \
         allowed_roles=ccn
-        
+
 echo "-->Configuring template masking"
 vault write /data-protection/masking/transform/template/card-mask type=regex \
         pattern="(\d{4})-(\d{4})-(\d{4})-\d{4}" \
         alphabet="builtin/numeric"
-        
+
 echo "-->Test transform"
 vault write /data-protection/masking/transform/encode/ccn value=2345-2211-3333-4356
+
+echo "-->Boundary setup"
+{
+vault namespace create boundary
+ }||
+{
+  echo "--> Boundary namespace already created, moving on"
+}
+
+echo "-->mount transit in boundary namespace"
+{
+
+vault secrets enable  -namespace=boundary -path=transit transit
+
+ }||
+{
+  echo "--> transit already mounted, moving on"
+}
+
+echo "--> creating boundary root key"
+{
+vault  write -namespace=boundary -f  transit/keys/root
+ }||
+{
+  echo "--> root key already exists, moving on"
+}
+
+echo "--> creating boundary worker-auth key"
+{
+vault write -namespace=boundary  -f  transit/keys/worker-auth
+
+ }||
+{
+  echo "--> worker-auth key already exists, moving on"
+}
+
+echo "-->Installing Oracle DB plugin"
+###################################################################################################################
+{
+
+
+logger "-->install Oracle dependencies"
+
+# Install dependencies
+sudo apt install -y alien
+
+# Download files. Example specific to 19.3
+# Some links were not correct on the downloads page
+# (still pointing to a license page), but easy enough to
+# figure out from working ones
+wget https://download.oracle.com/otn_software/linux/instantclient/193000/oracle-instantclient19.3-basiclite-19.3.0.0.0-1.x86_64.rpm
+wget https://download.oracle.com/otn_software/linux/instantclient/193000/oracle-instantclient19.3-devel-19.3.0.0.0-1.x86_64.rpm
+wget https://download.oracle.com/otn_software/linux/instantclient/193000/oracle-instantclient19.3-sqlplus-19.3.0.0.0-1.x86_64.rpm
+
+# Install all 3 RPM's downloaded
+sudo alien -i oracle-instantclient19.3-*.rpm
+
+# Install SQL*Plus dependency
+sudo apt install -y libaio1
+
+# Create Oracle environment script
+export ORACLE_HOME=/usr/lib/oracle/19.3/client64
+
+logger "-->Installing Oracle DB plugin"
+sudo wget -P /tmp/ -O vault-plugin-database-oracle_linux_amd64.zip  "${vault_oracle_client_url}"
+sudo unzip -q /tmp/vault-plugin-database-oracle_linux_amd64.zip -d /etc/vault.d/plugins/
+
+sudo chmod +x /etc/vault.d/plugins/vault-plugin-database-oracle
+shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
+sudo chmod 777 /tmp/oracle-plugin.sha256
+sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
+
+export VAULT_SKIP_VERIFY=true
+
+logger "==> Enable Oracle Plugin"
+vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
+    sha256=$(cat /tmp/oracle-plugin.sha256 | head -n1 | awk '{print $1;}') \
+    command="vault-plugin-database-oracle"
+
+ }
+############################################################################################################
+
+
 
 echo "==> Vault is done!"

@@ -9,7 +9,6 @@ echo "--> Fetching enterprise binaries"
 install_from_url "consul" "${consul_ent_url}"
 fi
 
-
 echo "--> Writing configuration"
 sudo mkdir -p /mnt/consul
 sudo mkdir -p /etc/consul.d
@@ -38,7 +37,11 @@ sudo tee /etc/consul.d/config.json > /dev/null <<EOF
   },
   "ui": true,
   "enable_central_service_config":true,
-  "autopilot": {
+  "node_meta": {
+"zone" : "${meta_zone_tag}"
+},
+"autopilot": {
+"redundancy_zone_tag" : "zone",
     "cleanup_dead_servers": true,
     "last_contact_threshold": "200ms",
     "max_trailing_logs": 250,
@@ -48,7 +51,8 @@ sudo tee /etc/consul.d/config.json > /dev/null <<EOF
   "telemetry": {
     "disable_hostname": true,
     "prometheus_retention_time": "30s"
-  }
+  },
+  "recursors": ["169.254.169.253","1.1.1.1","1.0.0.1","8.8.8.8"]
 }
 EOF
 
@@ -79,17 +83,17 @@ EOF
 sudo systemctl enable consul
 sudo systemctl restart consul
 
-echo "--> Installing dnsmasq"
-ssh-apt install dnsmasq
-sudo tee /etc/dnsmasq.d/10-consul > /dev/null <<"EOF"
-server=/consul/127.0.0.1#8600
-no-poll
-server=8.8.8.8
-server=8.8.4.4
-cache-size=0
-EOF
-sudo systemctl enable dnsmasq
-sudo systemctl restart dnsmasq
+#  echo "--> Installing dnsmasq"
+#  apt install -y dnsmasq
+#  sudo tee /etc/dnsmasq.d/10-consul > /dev/null <<"EOF"
+#  server=/consul/127.0.0.1#8600
+#  no-poll
+#  server=8.8.8.8
+#  server=8.8.4.4
+#  cache-size=0
+#  EOF
+#  sudo systemctl enable dnsmasq
+#  sudo systemctl restart dnsmasq
 
 echo "--> Waiting for all Consul servers"
 while [ "$(consul members 2>&1 | grep "server" | grep "alive" | wc -l)" -lt "${consul_servers}" ]; do
@@ -119,5 +123,29 @@ curl -so /dev/null -X PUT http://127.0.0.1:8500/v1/acl/update \
   "Rules": "key \"vault\" { policy = \"deny\" }\n\nkey \"tmp\" { policy = \"deny\" }"
 }
 BODY
+
+echo "--> setting up resolv.conf"
+##################################
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+mkdir /etc/systemd/resolved.conf.d
+touch /etc/systemd/resolved.conf.d/forward-consul-domains.conf
+
+IPV4=$(ec2metadata --local-ipv4)
+
+printf "[Resolve]\nDNS=127.0.0.1\nDomains=~consul\n" > /etc/systemd/resolved.conf.d/forward-consul-domains.conf
+
+sudo iptables -t nat -A OUTPUT -d localhost -p udp -m udp --dport 53 -j REDIRECT --to-ports 8600
+sudo iptables -t nat -A OUTPUT -d localhost -p tcp -m tcp --dport 53 -j REDIRECT --to-ports 8600
+
+
+systemctl daemon-reload
+systemctl restart systemd-resolved
+##################################
+
+echo "--> Waiting for Consul leader"
+while [ -z "$(curl -skfS http://127.0.0.1:8500/v1/status/leader)" ]; do
+  sleep 3
+done
 
 echo "==> Consul is done!"

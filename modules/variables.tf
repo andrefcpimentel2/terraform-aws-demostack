@@ -1,4 +1,9 @@
 
+variable "vault_oracle_client_url" {
+  description = "The url to download vault."
+  default     = "https://releases.hashicorp.com/vault-plugin-database-oracle/0.2.1/vault-plugin-database-oracle_0.2.1_linux_amd64.zip"
+}
+
 variable "region" {
   description = "The region to create resources."
   default     = "eu-west-2"
@@ -8,7 +13,7 @@ variable "namespace" {
   description = <<EOH
 this is the differantiates different demostack deployment on the same subscription, everycluster should have a different value
 EOH
-  default = "connectdemo"
+  default     = "connectdemo"
 }
 
 variable "servers" {
@@ -62,7 +67,12 @@ variable "vault_ent_url" {
 }
 
 variable "owner" {
-  description = "IAM user responsible for lifecycle of cloud resources used for training"
+  description = "Email address of the user responsible for lifecycle of cloud resources used for training."
+}
+
+variable "hashi_region" {
+  description = "the region the owner belongs in.  e.g. NA-WEST-ENT, EU-CENTRAL"
+  default = "EMEA"
 }
 
 variable "created-by" {
@@ -114,6 +124,12 @@ variable "consullicense" {
   default     = ""
 }
 
+variable "nomadlicense" {
+  description = "Enterprise License for Nomad"
+  default     = ""
+}
+
+
 
 variable "instance_type_server" {
   description = "The type(size) of data servers (consul, nomad, etc)."
@@ -153,21 +169,16 @@ variable "nomad_gossip_key" {
   default = ""
 }
 
-variable "run_nomad_jobs"{
- default = "0" 
+variable "run_nomad_jobs" {
+  default = "0"
 }
 
 variable "host_access_ip" {
   description = "CIDR blocks allowed to connect via SSH on port 22"
-  default = [  ]
+  default     = []
 }
 
-variable "primary_datacenter"{
+variable "primary_datacenter" {
   description = "the primary datacenter for mesh gateways"
-  default = ""
-}
-
-variable "nomadlicense" {
-  description = "Enterprise License for Nomad"
   default     = ""
 }
