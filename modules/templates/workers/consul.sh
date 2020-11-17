@@ -25,6 +25,7 @@ sudo tee /etc/consul.d/config.json > /dev/null <<EOF
   "leave_on_terminate": true,
   "node_name": "${node_name}",
   "retry_join": ["provider=aws tag_key=${consul_join_tag_key} tag_value=${consul_join_tag_value}"],
+  "server": true,
   "ports": {
     "http": 8500,
     "https": 8501,
@@ -34,7 +35,11 @@ sudo tee /etc/consul.d/config.json > /dev/null <<EOF
   "connect":{
     "enabled": true
   },
-  "autopilot": {
+  "node_meta": {
+"zone" : "${meta_zone_tag}"
+},
+"autopilot": {
+"redundancy_zone_tag" : "zone",
     "cleanup_dead_servers": true,
     "last_contact_threshold": "200ms",
     "max_trailing_logs": 250,
@@ -82,16 +87,34 @@ EOF
 sudo systemctl enable consul
 sudo systemctl start consul
 
-echo "--> Installing dnsmasq"
-ssh-apt install dnsmasq
-sudo tee /etc/dnsmasq.d/10-consul > /dev/null <<"EOF"
-server=/consul/127.0.0.1#8600
-no-poll
-server=8.8.8.8
-server=8.8.4.4
-cache-size=0
-EOF
-sudo systemctl enable dnsmasq
-sudo systemctl restart dnsmasq
+#  echo "--> Installing dnsmasq"
+#  apt install -y dnsmasq
+#  sudo tee /etc/dnsmasq.d/10-consul > /dev/null <<"EOF"
+#  server=/consul/127.0.0.1#8600
+#  no-poll
+#  server=8.8.8.8
+#  server=8.8.4.4
+#  cache-size=0
+#  EOF
+#  sudo systemctl enable dnsmasq
+#  sudo systemctl restart dnsmasq
+
+echo "--> setting up resolv.conf"
+##################################
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+mkdir /etc/systemd/resolved.conf.d
+touch /etc/systemd/resolved.conf.d/forward-consul-domains.conf
+
+IPV4=$(ec2metadata --local-ipv4)
+
+printf "[Resolve]\nDNS=127.0.0.1\nDomains=~consul\n" > /etc/systemd/resolved.conf.d/forward-consul-domains.conf
+
+sudo iptables -t nat -A OUTPUT -d localhost -p udp -m udp --dport 53 -j REDIRECT --to-ports 8600
+sudo iptables -t nat -A OUTPUT -d localhost -p tcp -m tcp --dport 53 -j REDIRECT --to-ports 8600
+
+systemctl daemon-reload
+systemctl restart systemd-resolved
+##################################
 
 echo "==> Consul is done!"

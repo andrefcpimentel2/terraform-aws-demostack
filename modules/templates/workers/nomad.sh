@@ -2,13 +2,26 @@
 echo "==> Nomad (client)"
 
 echo "--> Fetching"
+echo "==> Nomad (server)"
+if [ ${enterprise} == 0 ]
+then
+echo "--> Fetching OSS binaries"
 install_from_url "nomad" "${nomad_url}"
-
+else
+echo "--> Fetching enterprise binaries"
+install_from_url "nomad" "${nomad_ent_url}"
+fi
 
 echo "--> Create a Directory to Use as a Mount Target"
 sudo mkdir -p /opt/mysql/data/
 sudo mkdir -p /opt/mongodb/data/
 sudo mkdir -p /opt/prometheus/data/
+sudo mkdir -p /opt/shared/data/
+sudo chmod 777 /opt/mysql/data/
+sudo chmod 777 /opt/mongodb/data/
+sudo chmod 777 /opt/prometheus/data/
+sudo chmod 777 /opt/shared/data/
+
 
 
 echo "--> Installing CNI plugin"
@@ -16,6 +29,8 @@ sudo mkdir -p /opt/cni/bin/
 wget -O cni.tgz ${cni_plugin_url}
 sudo tar -xzf cni.tgz -C /opt/cni/bin/
 
+export AWS_REGION=$(curl -fsq http://169.254.169.254/latest/meta-data/placement/availability-zone |  sed 's/[a-z]$//')
+export AWS_AZ=$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)
 
 echo "--> Installing"
 sudo mkdir -p /mnt/nomad
@@ -25,8 +40,10 @@ name         = "${node_name}"
 data_dir     = "/mnt/nomad"
 enable_debug = true
 bind_addr = "0.0.0.0"
-datacenter = "${region}"
-region = "global"
+
+datacenter = "$AWS_AZ"
+region = "$AWS_REGION"
+
 advertise {
   http = "$(public_ip):4646"
   rpc  = "$(public_ip):4647"
@@ -130,38 +147,5 @@ echo "--> Starting nomad"
 sudo systemctl enable nomad
 sudo systemctl start nomad
 
-echo "--> Creating workspace"
-sudo mkdir -p /workstation/nomad
-cd /workstation/nomad
-sudo git clone https://github.com/andrefcpimentel2/nomad_jobs
-cd nomad_jobs
-
-if [ ${run_nomad_jobs} == 0 ]
-then
-echo "--> not running Nomad Jobs"
-
-else
-
-echo "--> Waiting for Vault leader"
-while ! host active.vault.service.consul &> /dev/null; do
-  sleep 5
-done
-
-echo "--> Waiting for Nomad leader"
-while [ -z "$(curl -s http://localhost:4646/v1/status/leader)" ]; do
-  sleep 5
-done
-
-sleep 180
-
-
-echo "--> Running  Nomad Job"
-
- nomad run hashibo.nomad
- nomad run nginx-pki.nomad
- nomad run oracledb.nomad
-
-fi
 
 echo "==> Run Nomad is Done!"
-

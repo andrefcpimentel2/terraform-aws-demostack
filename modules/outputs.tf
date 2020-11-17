@@ -36,19 +36,26 @@ output "consul_ui" {
   value = "https://${aws_route53_record.consul.fqdn}:8500"
 }
 
+output "boundary_ui" {
+ value = "http://${aws_route53_record.boundary.fqdn}:9200"
+ # value = "troubleshooting"
+}
 
-output "nomad_tag_workers"{
+
+output "nomad_tag_workers" {
   value = data.template_file.workers.*.vars.node_name
 }
 
-output "nomad_tag_servers"{
+output "nomad_tag_servers" {
   value = data.template_file.servers.*.vars.node_name
 }
 
-# output "eks_endpoint" {
-#   value = aws_eks_cluster.eks.endpoint
-# }
-# output "eks_ca" {
-#  // value = aws_eks_cluster.eks.endpoint
-#   value = aws_eks_cluster.eks.certificate_authority.0.data
-# }
+/*
+output "eks_endpoint" {
+  value = aws_eks_cluster.eks.endpoint
+}
+output "eks_ca" {
+ // value = aws_eks_cluster.eks.endpoint
+  value = aws_eks_cluster.eks.certificate_authority.0.data
+}
+*/

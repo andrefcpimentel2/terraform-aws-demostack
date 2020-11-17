@@ -38,6 +38,10 @@ SHELLCOMMANDS
 }
 
 // Primary
+output "Primary_Region" {
+  value = var.primary_region
+}
+
 output "Primary_Consul" {
   value = module.primarycluster.consul_ui
 }
@@ -58,6 +62,10 @@ output "Primary_Traefik" {
   value = module.primarycluster.traefik_lb
 }
 
+output "Primary_Boundary" {
+  value = module.primarycluster.boundary_ui
+}
+
 output "Primary_servers_nodes" {
   value = module.primarycluster.servers
 }
@@ -66,25 +74,29 @@ output "Primary_workers_Nodes" {
   value = module.primarycluster.workers
 }
 
-output "Primary_nomad_tag_workers"{
+output "Primary_nomad_tag_workers" {
   value = module.primarycluster.nomad_tag_workers
 }
 
-output "Primary_nomad_tag_servers"{
+output "Primary_nomad_tag_servers" {
   value = module.primarycluster.nomad_tag_servers
 }
+/**
+output "Primary_k8s_eks_endpoint"{
+  value = module.primarycluster.eks_endpoint
+}
 
-# output "Primary_k8s_eks_endpoint"{
-#   value = module.primarycluster.eks_endpoint
-# }
-
-# output "Primary_k8s_eks_ca"{
-#   value = module.primarycluster.eks_ca
-# }
-
+output "Primary_k8s_eks_ca"{
+  value = module.primarycluster.eks_ca
+}
+**/
 
 // Secondary
-/*
+/**
+output "Secondary_Region" {
+  value = var.secondary_region
+}
+
 output "Secondary_Consul" {
   value = module.secondarycluster.consul_ui
 }
@@ -101,25 +113,38 @@ output "Secondary_Fabio" {
   value = module.secondarycluster.fabio_lb
 }
 
+output "Secondary_Traefik" {
+  value = module.secondarycluster.traefik_lb
+}
+
+
+output "Secondary_Boundary" {
+  value = module.secondarycluster.boundary_ui
+}
+
+
 output "Secondary_servers_nodes" {
   value = module.secondarycluster.servers
 }
 output "Secondary_workers_Nodes" {
   value = module.secondarycluster.workers
 }
-output "Secondary_nomad_tag_workers"{
+output "Secondary_nomad_tag_workers" {
   value = module.secondarycluster.nomad_tag_workers
 }
 
-output "Secondary_nomad_tag_servers"{
+output "Secondary_nomad_tag_servers" {
   value = module.secondarycluster.nomad_tag_servers
 }
-
-
 */
+
 
 // Tertiary
 /*
+output "Tertiary_Region" {
+  value = var.tertiary_region
+}
+
 output "Tertiary_Consul" {
   value = module.tertiarycluster.consul_ui
 }

@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 echo "==> Nomad (server)"
-
-echo "--> Fetching"
+if [ ${enterprise} == 0 ]
+then
+echo "--> Fetching OSS binaries"
 install_from_url "nomad" "${nomad_url}"
-sleep 10
+else
+echo "--> Fetching enterprise binaries"
+install_from_url "nomad" "${nomad_ent_url}"
+fi
+
+echo "--> Waiting for Vault leader"
+while ! host active.vault.service.consul &> /dev/null; do
+  sleep 5
+done
 
 echo "--> Generating Vault token..."
 export VAULT_TOKEN="$(consul kv get service/vault/root-token)"
-  NOMAD_VAULT_TOKEN="$(VAULT_TOKEN="$VAULT_TOKEN" \
-  VAULT_ADDR="https://vault.query.consul:8200" \
+export NOMAD_VAULT_TOKEN="$(VAULT_TOKEN="$VAULT_TOKEN" \
+  VAULT_ADDR="https://active.vault.service.consul:8200" \
   VAULT_SKIP_VERIFY=true \
   vault token create -field=token -policy=superuser -policy=nomad-server -display-name=${node_name} -id=${node_name} -period=72h)"
 
@@ -18,11 +27,19 @@ echo "--> Create a Directory to Use as a Mount Target"
 sudo mkdir -p /opt/mysql/data/
 sudo mkdir -p /opt/mongodb/data/
 sudo mkdir -p /opt/prometheus/data/
+sudo mkdir -p /opt/shared/data/
+sudo chmod 777 /opt/mysql/data/
+sudo chmod 777 /opt/mongodb/data/
+sudo chmod 777 /opt/prometheus/data/
+sudo chmod 777 /opt/shared/data/
 
 echo "--> Installing CNI plugin"
 sudo mkdir -p /opt/cni/bin/
 wget -O cni.tgz ${cni_plugin_url}
 sudo tar -xzf cni.tgz -C /opt/cni/bin/
+
+export AWS_REGION=$(curl -fsq http://169.254.169.254/latest/meta-data/placement/availability-zone |  sed 's/[a-z]$//')
+export AWS_AZ=$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)
 
 echo "--> Writing configuration"
 sudo mkdir -p /mnt/nomad
@@ -32,8 +49,8 @@ name         = "${node_name}"
 data_dir     = "/mnt/nomad"
 enable_debug = true
 bind_addr = "0.0.0.0"
-datacenter = "${region}"
-region = "global"
+datacenter = "$AWS_AZ"
+region = "$AWS_REGION"
 advertise {
   http = "$(public_ip):4646"
   rpc  = "$(public_ip):4647"
@@ -66,6 +83,12 @@ client {
     path      = "/opt/prometheus/data/"
     read_only = false
   }
+
+  host_volume "shared_mount" {
+    path      = "/opt/shared/data/"
+    read_only = false
+  }
+
 }
 tls {
   rpc  = true
@@ -141,16 +164,29 @@ EOF
 
 sudo systemctl enable nomad
 sudo systemctl start nomad
-sleep 2
+sleep 5
+
+echo "--> Waiting for Nomad leader"
+while ! curl -s -k https://localhost:4646/v1/status/leader --show-error; do
+  sleep 2
+done
+
+echo "--> Waiting for a list of Nomad peers"
+while ! curl -s -k https://localhost:4646/v1/status/peers --show-error; do
+  sleep 2
+done
 
 echo "--> Waiting for all Nomad servers"
 while [ "$(nomad server members 2>&1 | grep "alive" | wc -l)" -lt "${nomad_servers}" ]; do
   sleep 5
 done
 
-echo "--> Waiting for Nomad leader"
-while [ -z "$(curl -s http://localhost:4646/v1/status/leader)" ]; do
-  sleep 5
-done
+if [ ${enterprise} == 1 ]
+then
+echo "--> apply Nomad License"
+echo -n "${nomadlicense}" > /tmp/nomad.hclic
+nomad license put /tmp/nomad.hclic > /tmp/nomadlicense.out
+
+fi
 
 echo "==> Nomad is done!"

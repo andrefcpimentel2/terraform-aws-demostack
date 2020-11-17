@@ -1,16 +1,37 @@
+/*
 data "http" "myipaddr" {
-    url = "http://ipv4.icanhazip.com"
+  url = "http://ipv4.icanhazip.com"
 }
 
 locals {
-   host_access_ip = ["${chomp(data.http.myipaddr.body)}/32"]
+  host_access_ip = ["${chomp(data.http.myipaddr.body)}/32"]
+}
+*/
+
+variable "host_access_ip" {
+  description = "your IP address to allow ssh to work"
+  default     = []
+}
+
+variable "create_primary_cluster" {
+  description = "Set to true if you want to deploy the AWS delegated zone."
+  type        = bool
+  default     = "true"
+}
+
+variable "create_secondary_cluster" {
+  description = "Set to true if you want to deploy the AWS delegated zone."
+  type        = bool
+  default     = "false"
+}
+
+variable "create_tertiary_cluster" {
+  description = "Set to true if you want to deploy the AWS delegated zone."
+  type        = bool
+  default     = "false"
 }
 
 
-variable "region" {
-  description = "The region to create resources."
-  default     = "eu-west-2"
-}
 
 variable "namespace" {
   description = <<EOH
@@ -163,6 +184,11 @@ variable "consullicense" {
   default     = ""
 }
 
+variable "nomadlicense" {
+  description = "Enterprise License for Nomad"
+  default     = ""
+}
+
 variable "instance_type_server" {
   description = "The type(size) of data servers (consul, nomad, etc)."
   default     = "r4.large"
@@ -206,7 +232,7 @@ variable "run_nomad_jobs" {
 }
 
 
-variable "primary_datacenter"{
+variable "primary_datacenter" {
   description = "the primary datacenter for mesh gateways"
-  default = ""
+  default     = ""
 }
