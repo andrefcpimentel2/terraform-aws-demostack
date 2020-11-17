@@ -55,7 +55,7 @@ telemetry {
   disable_hostname = true
 }
 plugin_directory = "/etc/vault.d/plugins"
-api_addr = "https://$(public_ip):8200"
+api_addr = "${vault_api_addr}"
 disable_mlock = true
 ui = true
 EOF
@@ -383,6 +383,8 @@ sudo chmod +x /etc/vault.d/plugins/vault-plugin-database-oracle
 shasum -a 256 /etc/vault.d/plugins/vault-plugin-database-oracle > /tmp/oracle-plugin.sha256
 sudo chmod 777 /tmp/oracle-plugin.sha256
 #sudo setcap cap_ipc_lock=+ep /etc/vault.d/plugins/vault-plugin-database-oracle
+
+export VAULT_SKIP_VERIFY=true
 
 logger "==> Enable Oracle Plugin"
 vault write sys/plugins/catalog/database/vault-plugin-database-oracle \
