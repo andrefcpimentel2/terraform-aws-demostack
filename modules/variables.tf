@@ -166,3 +166,8 @@ variable "primary_datacenter"{
   description = "the primary datacenter for mesh gateways"
   default = ""
 }
+
+variable "nomadlicense" {
+  description = "Enterprise License for Nomad"
+  default     = ""
+}
