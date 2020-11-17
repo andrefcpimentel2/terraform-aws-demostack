@@ -1,6 +1,6 @@
 
 resource "aws_lb" "boundary-controller" {
-   name = "${var.namespace}-boundary-controller"
+   name = "${var.namespace}-boundary-cont"
   load_balancer_type = "network"
   internal           = false
 subnets         = aws_subnet.demostack.*.id
