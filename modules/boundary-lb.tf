@@ -6,7 +6,7 @@ resource "aws_lb" "boundary-controller" {
 subnets         = aws_subnet.demostack.*.id
 
  tags = {
-    Name           = "${var.namespace}-boundary-controller"
+    Name           = "${var.namespace}-boundary-cont"
     owner          = var.owner
     created-by     = var.created-by
     sleep-at-night = var.sleep-at-night
@@ -15,7 +15,7 @@ subnets         = aws_subnet.demostack.*.id
 }
 
 resource "aws_lb_target_group" "boundary-controller" {
-  name     = "${var.namespace}-boundary-controller"
+  name     = "${var.namespace}-boundary-cont"
   port     = 9200
   protocol = "TCP"
   vpc_id   = aws_vpc.demostack.id
@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "boundary-controller" {
      type    = "lb_cookie"
   }
   tags = {
-    Name           = "${var.namespace}-boundary-controller"
+    Name           = "${var.namespace}-boundary-cont"
     owner          = var.owner
     created-by     = var.created-by
     sleep-at-night = var.sleep-at-night
