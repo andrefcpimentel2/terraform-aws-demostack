@@ -147,5 +147,38 @@ echo "--> Starting nomad"
 sudo systemctl enable nomad
 sudo systemctl start nomad
 
+if [ ${run_nomad_jobs} == 0 ]
+then
+echo "--> not running Nomad Jobs"
+
+else
+
+echo "--> Waiting for Vault leader"
+while ! host active.vault.service.consul &> /dev/null; do
+  sleep 5
+done
+
+echo "--> Waiting for Nomad leader"
+while [ -z "$(curl -s http://localhost:4646/v1/status/leader)" ]; do
+  sleep 5
+done
+
+sleep 180
+
+
+
+
+echo "--> Creating workspace"
+sudo mkdir -p /workstation/nomad
+cd /workstation/nomad
+sudo git clone https://github.com/andrefcpimentel2/nomad_jobs
+cd nomad_jobs
+
+echo "--> Running  Nomad Job"
+
+ nomad run hashibo.nomad
+ nomad run nginx-pki.nomad
+
+fi
 
 echo "==> Run Nomad is Done!"
