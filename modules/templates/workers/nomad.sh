@@ -169,7 +169,7 @@ sudo git clone https://github.com/andrefcpimentel2/nomad_jobs
 cd nomad_jobs
 
 echo "--> Running  Nomad Job"
-
+ nomad run fabio-lb.nomad
  nomad run hashibo.nomad
  nomad run nginx-pki.nomad
 
