@@ -172,6 +172,7 @@ echo "--> Running  Nomad Job"
  nomad run fabio-lb.nomad
  nomad run hashibo.nomad
  nomad run nginx-pki.nomad
+ nomad run splunk.nomad
 
 fi
 

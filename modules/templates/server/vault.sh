@@ -8,6 +8,16 @@ $(cat /etc/ssl/certs/me.crt)
 $(cat /usr/local/share/ca-certificates/01-me.crt)
 EOF
 
+echo "==> Installing Telegraf and fluentd"
+echo "==> fluentd install"
+curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-focal-td-agent4.sh | sh
+sudo systemctl start td-agent.service
+
+echo "==> Telegraf install"
+sudo snap install telegraf --classic
+sudo systemctl start telegraf
+
+
 echo "==> checking if we are using enterprise binaries"
 echo "==> value of enterprise is ${enterprise}"
 

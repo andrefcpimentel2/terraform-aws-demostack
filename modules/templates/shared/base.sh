@@ -89,6 +89,7 @@ apt-get install -y \
   prometheus-node-exporter \
   golang-go \
   alien \
+  snapd \
   &>/dev/null
 
 
