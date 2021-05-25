@@ -236,3 +236,8 @@ variable "primary_datacenter" {
   description = "the primary datacenter for mesh gateways"
   default     = ""
 }
+
+variable "se-region" {
+  description = "the primary datacenter for mesh gateways"
+  default     = "EMEA"
+}
