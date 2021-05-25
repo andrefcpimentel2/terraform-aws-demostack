@@ -39,7 +39,6 @@ data "terraform_remote_state" "dns" {
 provider "aws" {
   region  = var.primary_region
   alias   = "primary"
-  version = "~> 2.0"
   default_tags {
     tags = {
       owner = var.owner
@@ -53,7 +52,6 @@ provider "aws" {
 provider "aws" {
   region  = var.secondary_region
   alias   = "secondary"
-  version = "~> 2.0"
   default_tags {
     tags = {
       owner = var.owner
@@ -67,7 +65,6 @@ provider "aws" {
 provider "aws" {
   region  = var.tertiary_region
   alias   = "tertiary"
-  version = "~> 2.0"
   default_tags {
     tags = {
       owner = var.owner
