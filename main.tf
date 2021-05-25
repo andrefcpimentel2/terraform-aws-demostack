@@ -39,40 +39,40 @@ data "terraform_remote_state" "dns" {
 provider "aws" {
   region  = var.primary_region
   alias   = "primary"
-  default_tags {
-    tags = {
-      owner = var.owner
-      se-region = var.se-region
-      purpose = var.purpose
-      terraform = true
-    }
-  }
+#   default_tags {
+#     tags = {
+#       owner = var.owner
+#       se-region = var.se-region
+#       purpose = var.purpose
+#       terraform = true
+#     }
+#   }
 }
 
 provider "aws" {
   region  = var.secondary_region
   alias   = "secondary"
-  default_tags {
-    tags = {
-      owner = var.owner
-      se-region = var.se-region
-      purpose = var.purpose
-      terraform = true
-    }
-  }
+#   default_tags {
+#     tags = {
+#       owner = var.owner
+#       se-region = var.se-region
+#       purpose = var.purpose
+#       terraform = true
+#     }
+#   }
 }
 
 provider "aws" {
   region  = var.tertiary_region
   alias   = "tertiary"
-  default_tags {
-    tags = {
-      owner = var.owner
-      se-region = var.se-region
-      purpose = var.purpose
-      terraform = true
-    }
-  }
+#   default_tags {
+#     tags = {
+#       owner = var.owner
+#       se-region = var.se-region
+#       purpose = var.purpose
+#       terraform = true
+#     }
+#   }
 }
 
 module "primarycluster" {
