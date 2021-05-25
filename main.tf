@@ -40,18 +40,42 @@ provider "aws" {
   region  = var.primary_region
   alias   = "primary"
   version = "~> 2.0"
+  default_tags {
+    tags = {
+      owner = var.owner
+      se-region = var.se-region
+      purpose = var.purpose
+      terraform = true
+    }
+  }
 }
 
 provider "aws" {
   region  = var.secondary_region
   alias   = "secondary"
   version = "~> 2.0"
+  default_tags {
+    tags = {
+      owner = var.owner
+      se-region = var.se-region
+      purpose = var.purpose
+      terraform = true
+    }
+  }
 }
 
 provider "aws" {
   region  = var.tertiary_region
   alias   = "tertiary"
   version = "~> 2.0"
+  default_tags {
+    tags = {
+      owner = var.owner
+      se-region = var.se-region
+      purpose = var.purpose
+      terraform = true
+    }
+  }
 }
 
 module "primarycluster" {
