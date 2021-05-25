@@ -238,6 +238,11 @@ variable "primary_datacenter" {
 }
 
 variable "se-region" {
-  description = "the primary datacenter for mesh gateways"
+  description = "SE region tagging"
   default     = "EMEA"
+}
+
+variable "purpose" {
+  description = "demostack purpose"
+  default     = "demostack"
 }
