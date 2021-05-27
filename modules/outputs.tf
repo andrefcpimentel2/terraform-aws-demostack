@@ -36,10 +36,10 @@ output "consul_ui" {
   value = "https://${aws_route53_record.consul.fqdn}:8500"
 }
 
-output "boundary_ui" {
- value = "http://${aws_route53_record.boundary.fqdn}:9200"
- # value = "troubleshooting"
-}
+# output "boundary_ui" {
+#  value = "http://${aws_route53_record.boundary.fqdn}:9200"
+#  # value = "troubleshooting"
+# }
 
 
 output "nomad_tag_workers" {
