@@ -4,7 +4,7 @@
 terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
-    organization = "emea-se-playground-2019"
+    organization = "hackathon-tf-expand-team1"
     workspaces {
       name = "Andre-AWS-Demostack"
     }
@@ -16,9 +16,9 @@ data "terraform_remote_state" "tls" {
   backend = "remote"
   config = {
     hostname     = "app.terraform.io"
-    organization = "emea-se-playground-2019"
+    organization = "hackathon-tf-expand-team1"
     workspaces = {
-      name = "tls-root-certificate"
+      name = "terraform-tls-certificate"
     }
   } //config
 }
@@ -28,9 +28,9 @@ data "terraform_remote_state" "dns" {
 
   config = {
     hostname     = "app.terraform.io"
-    organization = "emea-se-playground-2019"
+    organization = "hackathon-tf-expand-team1"
     workspaces = {
-      name = "Andre-dns-multicloud"
+      name = "andre-dns-multicloud"
     }
   } //network
 }
