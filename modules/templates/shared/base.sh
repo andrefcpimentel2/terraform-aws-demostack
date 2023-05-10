@@ -61,7 +61,7 @@ net.bridge.bridge-nf-call-iptables = 1
 EOF
 
 echo "--> updated version of Nodejs"
-curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 
 echo "--> Adding Hashicorp repo"
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -70,6 +70,7 @@ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 echo "--> Installing common dependencies"
 apt-get install -y \
   build-essential \
+  cpu-checker \
   nodejs \
   curl \
   emacs \
@@ -80,6 +81,13 @@ apt-get install -y \
   vim \
   wget \
   tree \
+  qemu-kvm \
+  virt-manager \
+  virtinst \
+  libvirt-clients \
+  bridge-utils \
+  libvirt-daemon-system \
+  podman \
   nfs-kernel-server \
   nfs-common \
   python3-pip \

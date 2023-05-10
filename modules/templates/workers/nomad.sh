@@ -38,6 +38,7 @@ client {
    options {
     "driver.raw_exec.enable" = "1"
      "docker.privileged.enabled" = "true"
+      "qemu.config.image_paths"  = "/tmp"
   }
   meta {
     "type" = "worker",
@@ -82,6 +83,12 @@ telemetry {
   publish_allocation_metrics = true
   publish_node_metrics = true
   prometheus_metrics = true
+}
+
+plugin "qemu" {
+  config {
+    image_paths = ["/tmp"]
+  }
 }
 EOF
 

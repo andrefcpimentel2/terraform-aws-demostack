@@ -84,7 +84,7 @@ variable "cidr_blocks" {
 }
 
 variable "zone_id" {
-  description = "The CIDR blocks to create the workstations in."
+  description = "The Route 53 Zone ID for your FQDN"
   default     = ""
 }
 
@@ -124,17 +124,6 @@ variable "instance_type_worker" {
   default     = "t2.xlarge"
 }
 
-variable "ca_key_algorithm" {
-  default = ""
-}
-
-variable "ca_private_key_pem" {
-  default = ""
-}
-
-variable "ca_cert_pem" {
-  default = ""
-}
 
 variable "consul_gossip_key" {
   default = ""
@@ -153,7 +142,7 @@ variable "nomad_gossip_key" {
 }
 
 variable "run_nomad_jobs" {
-  default = "0"
+  default = "1"
 }
 
 variable "host_access_ip" {
