@@ -1,1 +1,1 @@
-data "tfe_ip_ranges" "addresses" {}
+# data "tfe_ip_ranges" "addresses" {}
