@@ -59,6 +59,10 @@ data "cloudinit_config" "servers" {
     vault_root_token = random_id.vault-root-token.hex
     vault_servers    = var.servers
     vault_api_addr = "https://${aws_route53_record.vault.fqdn}:8200"
+    splunk_addr = var.splunk_addr
+    splunk_port = var.splunk_port
+    fluentd_splunk_token = var.fluentd_splunk_token
+    telegraf_splunk_token = var.telegraf_splunk_token
     })
    }
 

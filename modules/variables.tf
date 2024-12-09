@@ -172,3 +172,23 @@ variable "f5_ami_search_name" {
   type        = string
   default     = "F5 BIGIP-16.1.0* PAYG-Good 25Mbps*"
 }
+
+variable "splunk_port" {
+  description = "The configured Splunk HTTP Event Listener port number"
+  default     = "8088"
+}
+
+variable "splunk_addr" {
+  description = "The hostname or IP address of your Splunk server"
+  default     = ""
+}
+
+variable "fluentd_splunk_token" {
+  description = "The HEC token value for the audit device HEC"
+  default     = ""
+}
+
+variable "telegraf_splunk_token" {
+  description = "The HEC token value for the audit device HEC"
+  default     = ""
+}

@@ -179,3 +179,23 @@ variable "f5_password" {
   default     = "admin"
   sensitive = true
 }
+
+variable "splunk_port" {
+  description = "The configured Splunk HTTP Event Listener port number"
+  default     = "8088"
+}
+
+variable "splunk_addr" {
+  description = "The hostname or IP address of your Splunk server"
+  default     = ""
+}
+
+variable "fluentd_splunk_token" {
+  description = "The HEC token value for the audit device HEC"
+  default     = ""
+}
+
+variable "telegraf_splunk_token" {
+  description = "The HEC token value for the audit device HEC"
+  default     = ""
+}
