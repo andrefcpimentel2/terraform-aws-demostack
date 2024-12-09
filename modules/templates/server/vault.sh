@@ -374,7 +374,7 @@ https://repos.influxdata.com/influxdata-archive.key \
 | sudo tee /etc/apt/sources.list.d/influxdata.list
 sudo apt-get update && sudo apt-get install telegraf
 
-sudo tee /etc/fluent/fluentd.conf > /dev/null <<"EOF"
+sudo tee /etc/telegraf/telegraf.conf > /dev/null <<"EOF"
 
 # Global tags relate to and are available for use in Splunk searches
 # Of particular note are the index tag, which is required to match the
@@ -467,6 +467,9 @@ sudo tee /etc/fluent/fluentd.conf > /dev/null <<"EOF"
 [[inputs.system]]
   # No configuration required
 EOF
+
+sudo systemctl restart telegraf
+sleep 10
 
 echo "==> Monitoring is done!"
 
