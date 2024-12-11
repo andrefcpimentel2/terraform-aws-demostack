@@ -324,13 +324,16 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
 
 
 echo "==> Start Monitoring setup"
+sudo chmod -R 777 vault
+vault audit enable file file_path=/vault/logs/vault-audit.log mode=755
 
 echo "==> Start Fluentd"
 
 sudo apt install ntp
 curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-jammy-fluent-package5-lts.sh | sh
 sleep 5
-fluent-gem install fluent-plugin-splunk-enterprise
+
+sudo fluent-gem install fluent-plugin-splunk-enterprise
 
 sudo tee /etc/fluent/fluentd.conf > /dev/null <<"EOF"
 <source>
@@ -353,13 +356,18 @@ sudo tee /etc/fluent/fluentd.conf > /dev/null <<"EOF"
 
 <match vault_audit.**>
   @type splunk_hec
+  host ${splunk_addr}
+  port ${splunk_port}
+  token ${fluentd_splunk_token}
   hec_host ${splunk_addr}
   hec_port ${splunk_port}
   hec_token ${fluentd_splunk_token}
 </match>
 EOF
 
+sudo systemctl restart fluentd
 sudo systemctl restart td-agent
+
 sleep 10
 
 echo "==> Start Telegraf"
@@ -473,7 +481,7 @@ sleep 10
 
 echo "==> Monitoring is done!"
 
-vault audit enable file file_path=/vault/logs/vault-audit.log mode=744
+
 
 echo "==> Vault is done!"
 
