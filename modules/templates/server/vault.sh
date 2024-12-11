@@ -411,7 +411,7 @@ sudo tee /etc/telegraf/telegraf.conf > /dev/null <<"EOF"
 # An output plugin that can transmit metrics over HTTP to Splunk
 # You must specify a valid Splunk HEC token as the Authorization value
 [[outputs.http]]
-  url = "http://${splunk_addr}:${splunk_port}/services/collector"
+  url = "https://${splunk_addr}:${splunk_port}/services/collector"
   data_format="splunkmetric"
   splunkmetric_hec_routing=true
   [outputs.http.headers]
