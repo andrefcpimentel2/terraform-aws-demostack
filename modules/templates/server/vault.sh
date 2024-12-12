@@ -41,8 +41,9 @@ seal "awskms" {
 }
 telemetry {
   dogstatsd_addr = "localhost:8125"
-  enable_hostname_label = true
-  prometheus_retention_time = "0h"
+  enable_hostname_label          = true
+  disable_hostname               = true
+  enable_high_cardinality_labels = "*"
 }
 
 replication {
@@ -359,9 +360,8 @@ sudo tee /etc/fluent/fluentd.conf > /dev/null <<"EOF"
   host ${splunk_addr}
   port ${splunk_port}
   token ${fluentd_splunk_token}
-  hec_host ${splunk_addr}
-  hec_port ${splunk_port}
-  hec_token ${fluentd_splunk_token}
+  insecure_ssl true
+  index vault_index
 </match>
 EOF
 
@@ -432,7 +432,7 @@ sudo tee /etc/telegraf/telegraf.conf > /dev/null <<"EOF"
   totalcpu = true
   collect_cpu_time = false
   report_active = false
-
+  fieldpass = ["usage_idle","usage_iowait","usage_irq","usage_nice","usage_softirq","usage_steal","usage_system","usage_user"]
 # Read metrics about memory usage
 [[inputs.mem]]
   # No configuration required
