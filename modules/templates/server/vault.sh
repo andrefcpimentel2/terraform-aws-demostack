@@ -324,162 +324,156 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
 }
 
 
-echo "==> Start Monitoring setup"
-sudo chmod -R 777 vault
-vault audit enable file file_path=/vault/logs/vault-audit.log mode=755
+# echo "==> Start Monitoring setup"
+# sudo chmod -R 777 /vault
+# vault audit enable file file_path=/vault/logs/vault-audit.log mode=755
 
-echo "==> Start Fluentd"
+# echo "==> Start Fluentd"
 
-sudo apt install ntp
-curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-jammy-fluent-package5-lts.sh | sh
-sleep 5
+# sudo apt install ntp
+# curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-jammy-fluent-package5-lts.sh | sh
+# sleep 5
 
-sudo fluent-gem install fluent-plugin-splunk-enterprise
+# sudo fluent-gem install fluent-plugin-splunk-enterprise
 
-sudo tee /etc/fluent/fluentd.conf > /dev/null <<"EOF"
-<source>
-  @type tail
-  path /vault/logs/vault-audit.log
-  pos_file /vault/logs/vault-audit-log.pos
-  <parse>
-    @type json
-    time_format %iso8601
-  </parse>
-  tag vault_audit
-</source>
+# sudo tee /etc/fluent/fluentd.conf > /dev/null <<"EOF"
+# <source>
+#   @type tail
+#   path /vault/logs/vault-audit.log
+#   pos_file /vault/logs/vault-audit-log.pos
+#   <parse>
+#     @type json
+#     time_format %iso8601
+#   </parse>
+#   tag vault_audit
+# </source>
 
-<filter vault_audit>
-  @type record_transformer
-  <record>
-    cluster v5
-  </record>
-</filter>
 
-<match vault_audit.**>
-  @type splunk_hec
-  host ${splunk_addr}
-  port ${splunk_port}
-  token ${fluentd_splunk_token}
-  insecure_ssl true
-  index vault_index
-</match>
-EOF
+# <match vault_audit.**>
+#   @type splunk_hec
+#   host ${splunk_addr}
+#   port ${splunk_port}
+#   token ${fluentd_splunk_token}
+#   insecure_ssl true
+#   index vault_index
+# </match>
+# EOF
 
-sudo systemctl restart fluentd
-sudo systemctl restart td-agent
+# sudo systemctl restart fluentd
+# sudo systemctl restart td-agent
 
-sleep 10
+# sleep 10
 
-echo "==> Start Telegraf"
+# echo "==> Start Telegraf"
 
-curl --silent --location -O \
-https://repos.influxdata.com/influxdata-archive.key \
-&& echo "943666881a1b8d9b849b74caebf02d3465d6beb716510d86a39f6c8e8dac7515  influxdata-archive.key" \
-| sha256sum -c - && cat influxdata-archive.key \
-| gpg --dearmor \
-| sudo tee /etc/apt/trusted.gpg.d/influxdata-archive.gpg > /dev/null \
-&& echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive.gpg] https://repos.influxdata.com/debian stable main' \
-| sudo tee /etc/apt/sources.list.d/influxdata.list
-sudo apt-get update && sudo apt-get install telegraf
+# curl --silent --location -O \
+# https://repos.influxdata.com/influxdata-archive.key \
+# && echo "943666881a1b8d9b849b74caebf02d3465d6beb716510d86a39f6c8e8dac7515  influxdata-archive.key" \
+# | sha256sum -c - && cat influxdata-archive.key \
+# | gpg --dearmor \
+# | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive.gpg > /dev/null \
+# && echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive.gpg] https://repos.influxdata.com/debian stable main' \
+# | sudo tee /etc/apt/sources.list.d/influxdata.list
+# sudo apt-get update && sudo apt-get install telegraf
 
-sudo tee /etc/telegraf/telegraf.conf > /dev/null <<"EOF"
+# sudo tee /etc/telegraf/telegraf.conf > /dev/null <<"EOF"
 
-# Global tags relate to and are available for use in Splunk searches
-# Of particular note are the index tag, which is required to match the
-# configured metrics index name and the cluster tag which should match the
-# value of Vault's cluster_name configuration option value.
+# # Global tags relate to and are available for use in Splunk searches
+# # Of particular note are the index tag, which is required to match the
+# # configured metrics index name and the cluster tag which should match the
+# # value of Vault's cluster_name configuration option value.
 
-[global_tags]
-  index="vault-metrics"
-  datacenter = "us-east-1"
-  role       = "vault-server"
-  cluster    = "vtl"
+# [global_tags]
+#   index="vault-metrics"
+#   datacenter = "us-east-1"
+#   role       = "vault-server"
+#   cluster    = "vtl"
 
-# Agent options around collection interval, sizes, jitter and so on
-[agent]
-  interval = "10s"
-  round_interval = true
-  metric_batch_size = 1000
-  metric_buffer_limit = 10000
-  collection_jitter = "0s"
-  flush_interval = "10s"
-  flush_jitter = "0s"
-  precision = ""
-  hostname = ""
-  omit_hostname = false
+# # Agent options around collection interval, sizes, jitter and so on
+# [agent]
+#   interval = "10s"
+#   round_interval = true
+#   metric_batch_size = 1000
+#   metric_buffer_limit = 10000
+#   collection_jitter = "0s"
+#   flush_interval = "10s"
+#   flush_jitter = "0s"
+#   precision = ""
+#   hostname = ""
+#   omit_hostname = false
 
-# An input plugin that listens on UDP/8125 for statsd compatible telemetry
-# messages using Datadog extensions which are emitted by Vault
-[[inputs.statsd]]
-  protocol = "udp"
-  service_address = ":8125"
-  metric_separator = "."
-  datadog_extensions = true
+# # An input plugin that listens on UDP/8125 for statsd compatible telemetry
+# # messages using Datadog extensions which are emitted by Vault
+# [[inputs.statsd]]
+#   protocol = "udp"
+#   service_address = ":8125"
+#   metric_separator = "."
+#   datadog_extensions = true
 
-# An output plugin that can transmit metrics over HTTP to Splunk
-# You must specify a valid Splunk HEC token as the Authorization value
-[[outputs.http]]
-  url = "http://${splunk_addr}:${splunk_port}/services/collector"
-  data_format="splunkmetric"
-  splunkmetric_hec_routing=true
-  [outputs.http.headers]
-    Content-Type = "application/json"
-    Authorization = "Splunk ${telegraf_splunk_token}"
+# # An output plugin that can transmit metrics over HTTP to Splunk
+# # You must specify a valid Splunk HEC token as the Authorization value
+# [[outputs.http]]
+#   url = "http://${splunk_addr}:${splunk_port}/services/collector"
+#   data_format="splunkmetric"
+#   splunkmetric_hec_routing=true
+#   [outputs.http.headers]
+#     Content-Type = "application/json"
+#     Authorization = "Splunk ${telegraf_splunk_token}"
 
-# Read metrics about cpu usage using default configuration values
-[[inputs.cpu]]
-  percpu = true
-  totalcpu = true
-  collect_cpu_time = false
-  report_active = false
-  fieldpass = ["usage_idle","usage_iowait","usage_irq","usage_nice","usage_softirq","usage_steal","usage_system","usage_user"]
-# Read metrics about memory usage
-[[inputs.mem]]
-  # No configuration required
+# # Read metrics about cpu usage using default configuration values
+# [[inputs.cpu]]
+#   percpu = true
+#   totalcpu = true
+#   collect_cpu_time = false
+#   report_active = false
+#   fieldpass = ["usage_idle","usage_iowait","usage_irq","usage_nice","usage_softirq","usage_steal","usage_system","usage_user"]
+# # Read metrics about memory usage
+# [[inputs.mem]]
+#   # No configuration required
 
-# Read metrics about swap memory usage
-[[inputs.swap]]
-  # No configuration required
+# # Read metrics about swap memory usage
+# [[inputs.swap]]
+#   # No configuration required
 
-# Read metrics about disk usage using default configuration values
-[[inputs.disk]]
-  ## By default stats will be gathered for all mount points.
-  ## Set mount_points will restrict the stats to only the specified mount points.
-  ## mount_points = ["/"]
-  ## Ignore mount points by filesystem type.
-  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+# # Read metrics about disk usage using default configuration values
+# [[inputs.disk]]
+#   ## By default stats will be gathered for all mount points.
+#   ## Set mount_points will restrict the stats to only the specified mount points.
+#   ## mount_points = ["/"]
+#   ## Ignore mount points by filesystem type.
+#   ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
 
-[[inputs.diskio]]
-  # devices = ["sda", "sdb"]
-  # skip_serial_number = false
+# [[inputs.diskio]]
+#   # devices = ["sda", "sdb"]
+#   # skip_serial_number = false
 
-[[inputs.kernel]]
-  # No configuration required
+# [[inputs.kernel]]
+#   # No configuration required
 
-[[inputs.linux_sysctl_fs]]
-  # No configuration required
+# [[inputs.linux_sysctl_fs]]
+#   # No configuration required
 
-[[inputs.net]]
-  # Specify an interface or all
-  # interfaces = ["enp0s*"]
+# [[inputs.net]]
+#   # Specify an interface or all
+#   # interfaces = ["enp0s*"]
 
-[[inputs.netstat]]
-  # No configuration required
+# [[inputs.netstat]]
+#   # No configuration required
 
-[[inputs.processes]]
-  # No configuration required
+# [[inputs.processes]]
+#   # No configuration required
 
-[[inputs.procstat]]
- pattern = "(vault)"
+# [[inputs.procstat]]
+#  pattern = "(vault)"
 
-[[inputs.system]]
-  # No configuration required
-EOF
+# [[inputs.system]]
+#   # No configuration required
+# EOF
 
-sudo systemctl restart telegraf
-sleep 10
+# sudo systemctl restart telegraf
+# sleep 10
 
-echo "==> Monitoring is done!"
+# echo "==> Monitoring is done!"
 
 
 
