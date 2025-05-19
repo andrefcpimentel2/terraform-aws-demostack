@@ -68,6 +68,10 @@ client {
     "name" = "${node_name}"
   }
 }
+acl {
+  enabled = true
+}
+
 
 tls {
   rpc  = true
