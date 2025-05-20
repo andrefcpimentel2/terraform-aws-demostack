@@ -105,9 +105,6 @@ client {
 
 }
 
-acl {
-  enabled = true
-}
 
 tls {
   rpc  = true

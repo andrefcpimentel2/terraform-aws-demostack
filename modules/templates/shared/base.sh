@@ -116,14 +116,14 @@ then
 sudo apt-get install -y \
   vault \
   consul \
-  nomad  \
+  nomad=1.8.13  \
   &>/dev/null
 
 else
 sudo apt-get install -y \
   vault-enterprise \
   consul-enterprise \
-  nomad-enterprise  \
+  nomad-enterprise=1.8.13  \
   &>/dev/null
 
 fi
