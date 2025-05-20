@@ -116,18 +116,17 @@ then
 sudo apt-get install -y \
   vault \
   consul \
+  nomad=1.8.4-1 \
   &>/dev/null
 
 else
 sudo apt-get install -y \
   vault-enterprise \
   consul-enterprise \
+  nomad-enterprise=1.8.13+ent-1  \
   &>/dev/null
 
 fi
-
-echo "--> Install Nomad maunally"
-install_from_url "nomad" "https://releases.hashicorp.com/nomad/1.8.13+ent/nomad_1.8.13+ent_linux_arm64.zip"
 
 # echo "--> Install Envoy"
 #  curl -L https://getenvoy.io/cli | sudo bash -s -- -b /usr/local/bin
