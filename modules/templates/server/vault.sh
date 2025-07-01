@@ -375,7 +375,7 @@ HOSTNAME=$(hostname)
 
 
 echo "Downloading Splunk UF..."
-curl -O "https://download.splunk.com/products/universalforwarder/releases/${SPLUNK_FORWARDER_VERSION}/linux/${PACKAGE_NAME}"
+curl -O "https://download.splunk.com/products/universalforwarder/releases/$SPLUNK_FORWARDER_VERSION/linux/$PACKAGE_NAME"
 
 
 echo "Installing Splunk UF..."
@@ -392,7 +392,7 @@ sudo /opt/splunkforwarder/bin/splunk enable boot-start
 
 # === Configure Forwarding ===
 echo "Configuring forwarding to $SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT..."
-sudo /opt/splunkforwarder/bin/splunk add forward-server "${SPLUNK_INDEXER_IP}:${SPLUNK_INDEXER_PORT}" -auth "admin:$SPLUNK_ADMIN_PASSWORD"
+sudo /opt/splunkforwarder/bin/splunk add forward-server "$SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT" -auth "admin:$SPLUNK_ADMIN_PASSWORD"
 
 # === Configure Inputs ===
 echo "Creating inputs.conf for logs and metrics..."
