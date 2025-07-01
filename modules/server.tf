@@ -19,8 +19,7 @@ data "cloudinit_config" "servers" {
     vault0_cert    = tls_locally_signed_cert.server.0.cert_pem
     vault0_key     = tls_private_key.server.0.private_key_pem
     public_key = var.public_key
-    splunk_index_ip = var.splunk_index_ip
-    splunk_admin_pass = var.splunk_admin_pass
+
     })
    }
 
@@ -65,6 +64,8 @@ data "cloudinit_config" "servers" {
     vault_api_addr = "https://${aws_route53_record.vault.fqdn}:8200"
     vault_join_tag_key   = "VaultJoin"
     vault_join_tag_value = var.consul_join_tag_value
+    splunk_index_ip = var.splunk_index_ip
+    splunk_admin_pass = var.splunk_admin_pass
     })
    }
 
