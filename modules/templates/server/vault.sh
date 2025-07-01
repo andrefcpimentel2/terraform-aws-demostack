@@ -366,5 +366,63 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
   echo "--> worker-auth key already exists, moving on"
 }
 
+echo "==> Starting Monitoring"
+SPLUNK_FORWARDER_VERSION="9.1.2"
+SPLUNK_INDEXER_IP="${splunk_index_ip}"
+SPLUNK_INDEXER_PORT=9997
+SPLUNK_ADMIN_PASSWORD=""${splunk_admin_pass}""
+HOSTNAME=$(hostname)
+
+
+echo "Downloading Splunk UF..."
+curl -O "https://download.splunk.com/products/universalforwarder/releases/${SPLUNK_FORWARDER_VERSION}/linux/${PACKAGE_NAME}"
+
+
+echo "Installing Splunk UF..."
+if [[ "$PACKAGE_TYPE" == "deb" ]]; then
+    sudo dpkg -i "$PACKAGE_NAME"
+else
+    sudo rpm -ivh "$PACKAGE_NAME"
+fi
+
+# === Initial Start & Enable at Boot ===
+sudo /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd "$SPLUNK_ADMIN_PASSWORD"
+sudo /opt/splunkforwarder/bin/splunk enable boot-start
+
+
+# === Configure Forwarding ===
+echo "Configuring forwarding to $SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT..."
+sudo /opt/splunkforwarder/bin/splunk add forward-server "${SPLUNK_INDEXER_IP}:${SPLUNK_INDEXER_PORT}" -auth "admin:$SPLUNK_ADMIN_PASSWORD"
+
+# === Configure Inputs ===
+echo "Creating inputs.conf for logs and metrics..."
+sudo tee /opt/splunkforwarder/etc/system/local/inputs.conf > /dev/null <<EOF
+[monitor:///var/log]
+disabled = false
+index = os_logs
+sourcetype = syslog
+
+[script://./bin/host_metrics.sh]
+disabled = false
+interval = 60
+index = os_metrics
+sourcetype = custom:metrics
+EOF
+
+# === Create host metrics script ===
+sudo mkdir -p /opt/splunkforwarder/bin
+sudo tee /opt/splunkforwarder/bin/host_metrics.sh > /dev/null <<'EOS'
+#!/bin/bash
+echo "cpu_user=$(grep 'cpu ' /proc/stat | awk '{print $2}')"
+echo "mem_used=$(free | awk '/Mem:/ {print $3}')"
+EOS
+
+sudo chmod +x /opt/splunkforwarder/bin/host_metrics.sh
+
+# === Restart UF ===
+echo "Restarting Splunk UF..."
+sudo /opt/splunkforwarder/bin/splunk restart
+
+echo "[✓] Splunk Universal Forwarder installed and forwarding to $SPLUNK_INDEXER_IP."
 
 echo "==> Vault is done!"

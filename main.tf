@@ -36,6 +36,9 @@ module "cluster" {
   run_nomad_jobs       = var.run_nomad_jobs
   host_access_ip       = var.host_access_ip
   primary_datacenter   = each.value.namespace
+  # Splunk config
+  splunk_index_ip = var.splunk_index_ip
+  splunk_admin_pass = var.splunk_admin_pass
 
   # EMEA-SE-PLAYGROUND
   consul_join_tag_value = "${each.value.namespace}-${random_id.consul_join_tag_value.hex}"

@@ -183,3 +183,13 @@ variable "f5_password" {
   default     = "admin"
   sensitive = true
 }
+
+variable "splunk_index_ip" {
+  description = "Splunk server IP"
+  type        = string
+}
+
+variable "splunk_admin_pass" {
+  description = "Splunk admin pass"  
+  type        = string
+}

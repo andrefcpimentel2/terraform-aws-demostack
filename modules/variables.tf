@@ -176,3 +176,14 @@ variable "f5_ami_search_name" {
   type        = string
   default     = "F5 BIGIP-16.1.0* PAYG-Good 25Mbps*"
 }
+
+variable "splunk_index_ip" {
+  description = "Splunk server IP"
+  type        = string
+}
+
+variable "splunk_admin_pass" {
+  description = "Splunk admin pass"  
+  type        = string
+}
+
