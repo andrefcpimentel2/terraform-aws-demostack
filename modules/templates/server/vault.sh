@@ -370,7 +370,7 @@ echo "==> Starting Monitoring"
 SPLUNK_FORWARDER_VERSION="9.1.2"
 SPLUNK_INDEXER_IP="${splunk_index_ip}"
 SPLUNK_INDEXER_PORT=9997
-SPLUNK_ADMIN_PASSWORD=""${splunk_admin_pass}""
+SPLUNK_ADMIN_PASSWORD="${splunk_admin_pass}"
 HOSTNAME=$(hostname)
 
 
