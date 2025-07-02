@@ -376,7 +376,7 @@ echo "==> Auditing Done"
 echo "==> Starting Monitoring"
 SPLUNK_FORWARDER_VERSION="9.1.2"
 SPLUNK_INDEXER_IP="${splunk_index_ip}"
-SPLUNK_INDEXER_PORT=8088
+SPLUNK_INDEXER_PORT="8088"
 SPLUNK_ADMIN_PASSWORD="${splunk_admin_pass}"
 VAULT_AUDIT_LOG="/var/log/vault_audit.log"
 VAULT_TELEMETRY_LOG="/var/log/vault_telemetry.log"
