@@ -373,99 +373,99 @@ vault audit enable file file_path=/var/log/vault_audit.log
 
 echo "==> Auditing Done"
 
-echo "==> Starting Monitoring"
-SPLUNK_FORWARDER_VERSION="9.1.2"
-SPLUNK_INDEXER_IP="${splunk_index_ip}"
-SPLUNK_INDEXER_PORT="8088"
-SPLUNK_ADMIN_PASSWORD="${splunk_admin_pass}"
-VAULT_AUDIT_LOG="/var/log/vault_audit.log"
-VAULT_TELEMETRY_LOG="/var/log/vault_telemetry.log"
-METRICS_INDEX="vault-metrics"
-VAULT_INDEX="vault-audit"
+# echo "==> Starting Monitoring"
+# SPLUNK_FORWARDER_VERSION="9.1.2"
+# SPLUNK_INDEXER_IP="${splunk_index_ip}"
+# SPLUNK_INDEXER_PORT="8088"
+# SPLUNK_ADMIN_PASSWORD="${splunk_admin_pass}"
+# VAULT_AUDIT_LOG="/var/log/vault_audit.log"
+# VAULT_TELEMETRY_LOG="/var/log/vault_telemetry.log"
+# METRICS_INDEX="vault-metrics"
+# VAULT_INDEX="vault-audit"
 
-# === Detect Linux Distro ===
-if command -v apt-get &> /dev/null; then
-    PACKAGE="splunkforwarder-$SPLUNK_FORWARDER_VERSION-linux-2.0-amd64.deb"
-    INSTALL_CMD="dpkg -i"
-elif command -v yum &> /dev/null; then
-    PACKAGE="splunkforwarder-$SPLUNK_FORWARDER_VERSION-linux-2.0-x86_64.rpm"
-    INSTALL_CMD="rpm -ivh"
-else
-    echo "Unsupported OS"
-    exit 1
-fi
+# # === Detect Linux Distro ===
+# if command -v apt-get &> /dev/null; then
+#     PACKAGE="splunkforwarder-$SPLUNK_FORWARDER_VERSION-linux-2.0-amd64.deb"
+#     INSTALL_CMD="dpkg -i"
+# elif command -v yum &> /dev/null; then
+#     PACKAGE="splunkforwarder-$SPLUNK_FORWARDER_VERSION-linux-2.0-x86_64.rpm"
+#     INSTALL_CMD="rpm -ivh"
+# else
+#     echo "Unsupported OS"
+#     exit 1
+# fi
 
-# === Download and Install UF ===
-echo "Downloading Splunk UF..."
-curl -O "https://download.splunk.com/products/universalforwarder/releases/$SPLUNK_FORWARDER_VERSION/linux/$PACKAGE"
-
-
-echo "Installing Splunk UF..."
-sudo $INSTALL_CMD $PACKAGE
-
-# === Initial Start & Enable at Boot ===
-sudo /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd "$SPLUNK_ADMIN_PASSWORD"
-sudo /opt/splunkforwarder/bin/splunk enable boot-start
+# # === Download and Install UF ===
+# echo "Downloading Splunk UF..."
+# curl -O "https://download.splunk.com/products/universalforwarder/releases/$SPLUNK_FORWARDER_VERSION/linux/$PACKAGE"
 
 
-# === Configure Forwarding ===
-echo "Configuring forwarding to $SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT..."
-sudo /opt/splunkforwarder/bin/splunk add forward-server "$SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT" -auth "admin:$SPLUNK_ADMIN_PASSWORD"
+# echo "Installing Splunk UF..."
+# sudo $INSTALL_CMD $PACKAGE
 
-# === Install Splunk Add-on for Unix and Linux ===
-echo "[+] Installing Splunk Add-on for Unix and Linux..."
-curl -O https://splunkbase.splunk.com/app/833/release/latest/download
-tar -xzf Splunk_TA_nix-*.tgz
-mv Splunk_TA_nix /opt/splunkforwarder/etc/apps/
-
-# === Enable Scripts in TA_nix ===
-mkdir -p /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local
+# # === Initial Start & Enable at Boot ===
+# sudo /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd "$SPLUNK_ADMIN_PASSWORD"
+# sudo /opt/splunkforwarder/bin/splunk enable boot-start
 
 
-cat <<EOF > /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local/inputs.conf
-[script://./bin/vmstat.sh]
-disabled = false
-interval = 60
-index = $METRICS_INDEX
+# # === Configure Forwarding ===
+# echo "Configuring forwarding to $SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT..."
+# sudo /opt/splunkforwarder/bin/splunk add forward-server "$SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT" -auth "admin:$SPLUNK_ADMIN_PASSWORD"
 
-[script://./bin/iostat.sh]
-disabled = false
-interval = 60
-index = $METRICS_INDEX
+# # === Install Splunk Add-on for Unix and Linux ===
+# echo "[+] Installing Splunk Add-on for Unix and Linux..."
+# curl -O https://splunkbase.splunk.com/app/833/release/latest/download
+# tar -xzf Splunk_TA_nix-*.tgz
+# mv Splunk_TA_nix /opt/splunkforwarder/etc/apps/
 
-[script://./bin/df.sh]
-disabled = false
-interval = 300
-index = $METRICS_INDEX
+# # === Enable Scripts in TA_nix ===
+# mkdir -p /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local
 
-[script://./bin/top.sh]
-disabled = false
-interval = 300
-index = $METRICS_INDEX
-EOF
 
-# === Monitor Vault Logs and Telemetry ===
-mkdir -p /opt/splunkforwarder/etc/system/local
+# cat <<EOF > /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local/inputs.conf
+# [script://./bin/vmstat.sh]
+# disabled = false
+# interval = 60
+# index = $METRICS_INDEX
 
-cat <<EOF >> /opt/splunkforwarder/etc/system/local/inputs.conf
+# [script://./bin/iostat.sh]
+# disabled = false
+# interval = 60
+# index = $METRICS_INDEX
 
-[monitor://$VAULT_AUDIT_LOG]
-sourcetype = vault:audit
-index = $VAULT_INDEX
+# [script://./bin/df.sh]
+# disabled = false
+# interval = 300
+# index = $METRICS_INDEX
 
-[monitor://$VAULT_TELEMETRY_LOG]
-sourcetype = vault:telemetry
-index = $METRICS_INDEX
-EOF
+# [script://./bin/top.sh]
+# disabled = false
+# interval = 300
+# index = $METRICS_INDEX
+# EOF
 
-# === Create Vault Telemetry File if Missing ===
-touch "$VAULT_TELEMETRY_LOG"
-chmod 644 "$VAULT_TELEMETRY_LOG"
-chown splunk:splunk "$VAULT_TELEMETRY_LOG"
+# # === Monitor Vault Logs and Telemetry ===
+# mkdir -p /opt/splunkforwarder/etc/system/local
 
-# === Restart UF ===
-/opt/splunkforwarder/bin/splunk restart
+# cat <<EOF >> /opt/splunkforwarder/etc/system/local/inputs.conf
 
-echo "[✓] Splunk Universal Forwarder configured to forward Vault logs, telemetry, and full system metrics."
+# [monitor://$VAULT_AUDIT_LOG]
+# sourcetype = vault:audit
+# index = $VAULT_INDEX
 
-echo "==> Vault is done!"
+# [monitor://$VAULT_TELEMETRY_LOG]
+# sourcetype = vault:telemetry
+# index = $METRICS_INDEX
+# EOF
+
+# # === Create Vault Telemetry File if Missing ===
+# touch "$VAULT_TELEMETRY_LOG"
+# chmod 644 "$VAULT_TELEMETRY_LOG"
+# chown splunk:splunk "$VAULT_TELEMETRY_LOG"
+
+# # === Restart UF ===
+# /opt/splunkforwarder/bin/splunk restart
+
+# echo "[✓] Splunk Universal Forwarder configured to forward Vault logs, telemetry, and full system metrics."
+
+# echo "==> Vault is done!"
