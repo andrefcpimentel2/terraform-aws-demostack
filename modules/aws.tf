@@ -242,6 +242,28 @@ tags = local.common_tags
   }
   }
 
+    dynamic "ingress" {
+    for_each = var.host_access_ip
+    content {
+     from_port   = 9997
+    to_port     = 9997
+    protocol    = "tcp"
+    cidr_blocks = ["${var.splunk_index_ip}/32"]
+    # cidr_blocks = flatten([ingress.value,data.tfe_ip_ranges.addresses.api])
+  }
+  }
+
+    dynamic "ingress" {
+    for_each = var.host_access_ip
+    content {
+     from_port   = 8088
+    to_port     = 8088
+    protocol    = "tcp"
+    cidr_blocks = ["${var.splunk_index_ip}/32"]
+    # cidr_blocks = flatten([ingress.value,data.tfe_ip_ranges.addresses.api])
+  }
+  }
+
   egress {
     from_port   = 0
     to_port     = 0

@@ -80,8 +80,6 @@ seal "awskms" {
 telemetry {
   prometheus_retention_time = "30s",
   disable_hostname = true
-  # File sink for Splunk UF
-  file = "/var/log/vault_telemetry.log"
 }
 replication {
       resolver_discover_servers = false
@@ -374,34 +372,34 @@ vault audit enable file file_path=/var/log/vault_audit.log
 echo "==> Auditing Done"
 
 # echo "==> Starting Monitoring"
-# SPLUNK_FORWARDER_VERSION="9.1.2"
-# SPLUNK_INDEXER_IP="${splunk_index_ip}"
-# SPLUNK_INDEXER_PORT="8088"
-# SPLUNK_ADMIN_PASSWORD="${splunk_admin_pass}"
-# VAULT_AUDIT_LOG="/var/log/vault_audit.log"
-# VAULT_TELEMETRY_LOG="/var/log/vault_telemetry.log"
-# METRICS_INDEX="vault-metrics"
-# VAULT_INDEX="vault-audit"
+# export SPLUNK_DOWNLOAD_LINK="https://download.splunk.com/products/universalforwarder/releases/9.4.3/linux/splunkforwarder-9.4.3-237ebbd22314-linux-arm64.deb"
+# export SPLUNK_PACKAGE="${SPLUNK_DOWNLOAD_LINK##*/}"
+# export SPLUNK_INDEXER_IP="${splunk_index_ip}"
+# export SPLUNK_INDEXER_IP="18.171.180.249"
+# export SPLUNK_INDEXER_PORT="9997"
+# export SPLUNK_ADMIN_PASSWORD="${splunk_admin_pass}"
+#  export SPLUNK_ADMIN_PASSWORD="3t2Z4G?_S$kGgLIh"
+# export VAULT_AUDIT_LOG="/var/log/vault_audit.log"
+# export VAULT_TELEMETRY_LOG="/var/log/vault_telemetry.log"
+# export METRICS_INDEX="vault-metrics"
+# export VAULT_INDEX="vault-audit"
+# export INSTALL_CMD="dpkg -i"
 
-# # === Detect Linux Distro ===
-# if command -v apt-get &> /dev/null; then
-#     PACKAGE="splunkforwarder-$SPLUNK_FORWARDER_VERSION-linux-2.0-amd64.deb"
-#     INSTALL_CMD="dpkg -i"
-# elif command -v yum &> /dev/null; then
-#     PACKAGE="splunkforwarder-$SPLUNK_FORWARDER_VERSION-linux-2.0-x86_64.rpm"
-#     INSTALL_CMD="rpm -ivh"
-# else
-#     echo "Unsupported OS"
-#     exit 1
-# fi
+# sudo useradd -m splunkfwd
+# sudo groupadd splunkfwd
+
+# export SPLUNK_HOME="/opt/splunkforwarder"
+# sudo mkdir $SPLUNK_HOME
 
 # # === Download and Install UF ===
 # echo "Downloading Splunk UF..."
-# curl -O "https://download.splunk.com/products/universalforwarder/releases/$SPLUNK_FORWARDER_VERSION/linux/$PACKAGE"
+# curl -O "$SPLUNK_DOWNLOAD_LINK"
 
 
 # echo "Installing Splunk UF..."
-# sudo $INSTALL_CMD $PACKAGE
+# sudo $INSTALL_CMD $SPLUNK_PACKAGE
+
+# sudo chown -R splunkfwd:splunkfwd $SPLUNK_HOME
 
 # # === Initial Start & Enable at Boot ===
 # sudo /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd "$SPLUNK_ADMIN_PASSWORD"
@@ -412,17 +410,15 @@ echo "==> Auditing Done"
 # echo "Configuring forwarding to $SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT..."
 # sudo /opt/splunkforwarder/bin/splunk add forward-server "$SPLUNK_INDEXER_IP:$SPLUNK_INDEXER_PORT" -auth "admin:$SPLUNK_ADMIN_PASSWORD"
 
-# # === Install Splunk Add-on for Unix and Linux ===
-# echo "[+] Installing Splunk Add-on for Unix and Linux..."
-# curl -O https://splunkbase.splunk.com/app/833/release/latest/download
+
 # tar -xzf Splunk_TA_nix-*.tgz
-# mv Splunk_TA_nix /opt/splunkforwarder/etc/apps/
+# sudo mv Splunk_TA_nix /opt/splunkforwarder/etc/apps/
 
 # # === Enable Scripts in TA_nix ===
-# mkdir -p /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local
+# sudo mkdir -p /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local
 
-
-# cat <<EOF > /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local/inputs.conf
+# sudo chown -R splunkfwd:splunkfwd $SPLUNK_HOME
+# sudo tee /opt/splunkforwarder/etc/apps/Splunk_TA_nix/local/inputs.conf > /dev/null <<EOF
 # [script://./bin/vmstat.sh]
 # disabled = false
 # interval = 60
@@ -446,8 +442,9 @@ echo "==> Auditing Done"
 
 # # === Monitor Vault Logs and Telemetry ===
 # mkdir -p /opt/splunkforwarder/etc/system/local
+# sudo chown -R splunkfwd:splunkfwd $SPLUNK_HOME
 
-# cat <<EOF >> /opt/splunkforwarder/etc/system/local/inputs.conf
+# sudo tee /opt/splunkforwarder/etc/system/local/inputs.conf > /dev/null <<EOF
 
 # [monitor://$VAULT_AUDIT_LOG]
 # sourcetype = vault:audit
@@ -459,13 +456,13 @@ echo "==> Auditing Done"
 # EOF
 
 # # === Create Vault Telemetry File if Missing ===
-# touch "$VAULT_TELEMETRY_LOG"
-# chmod 644 "$VAULT_TELEMETRY_LOG"
-# chown splunk:splunk "$VAULT_TELEMETRY_LOG"
+# sudo touch "$VAULT_TELEMETRY_LOG"
+# sudo chmod 644 "$VAULT_TELEMETRY_LOG"
+# sudo chown splunkfwd:splunkfwd "$VAULT_TELEMETRY_LOG"
 
 # # === Restart UF ===
-# /opt/splunkforwarder/bin/splunk restart
+# sudo /opt/splunkforwarder/bin/splunk restart
 
 # echo "[✓] Splunk Universal Forwarder configured to forward Vault logs, telemetry, and full system metrics."
 
-# echo "==> Vault is done!"
+echo "==> Vault is done!"
