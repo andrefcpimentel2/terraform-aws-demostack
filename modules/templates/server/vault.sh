@@ -78,7 +78,7 @@ seal "awskms" {
   kms_key_id = "${kmskey}"
 }
 telemetry {
-  prometheus_retention_time = "30s",
+  prometheus_retention_time = "30s"
   disable_hostname = true
 }
 replication {
