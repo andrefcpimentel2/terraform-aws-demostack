@@ -5,4 +5,6 @@ github_token = "e442cf825b0294f35ff01390c19f42759e7f15024"
 
 new_github_token = "e123cf825b0294f35ff01390c19f42759e7f15024"
 
+another_github_token = "e456cf825b0294f35ff01390c19f42759e7f15024"
+
 kubectl config get-contexts
