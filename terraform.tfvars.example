@@ -38,3 +38,7 @@ instance_type_server  = "t2.medium"
 instance_type_worker  = "t2.medium"
 public_key            = "ssh-rsa AAAAB3NzaC1yc2E"
 host_access_ip        = ["300.74.72.8/32"]
+
+#####################
+# This is another test
+#####################
