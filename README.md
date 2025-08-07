@@ -32,3 +32,7 @@ To begin debugging, check the cloud-init output:
 ```shell
 $ sudo tail -f /var/log/cloud-init-output.log
 ```
+
+CPF: 387.358.206-67
+AWS KEY: ASIAY34FZKBOKMUTVV7A
+
