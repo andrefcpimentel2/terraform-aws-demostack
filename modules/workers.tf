@@ -101,8 +101,8 @@ resource "aws_instance" "workers" {
 
   tags = merge(local.common_tags ,{
    ConsulJoin     = "${var.consul_join_tag_value}" ,
-   Purpose        = "demostack" ,
-   function       = "worker"
+   Purpose        = var.namespace ,
+   Function       = "worker"
    Name            = "${var.namespace}-worker-${count.index}" ,
    }
   )

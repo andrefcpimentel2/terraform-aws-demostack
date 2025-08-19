@@ -86,11 +86,11 @@ resource "aws_iam_role_policy_attachment" "eks-node-AmazonEC2ContainerRegistryRe
 
 resource "aws_eks_node_group" "eks-node" {
   cluster_name    = aws_eks_cluster.eks.name
-  node_group_name = "demostack"
+  node_group_name_prefix = "demostack"
   node_role_arn   = aws_iam_role.eks-node.arn
   subnet_ids      = aws_subnet.demostack.*.id
   instance_types  =  [var.instance_type_worker]
-  ami_type       = "AL2_ARM_64"
+  ami_type       = "AL2023_ARM_64_STANDARD"
 
   scaling_config {
     desired_size = 3
