@@ -115,14 +115,14 @@ if [ ${enterprise} == 0 ]
 then
 sudo apt-get install -y \
   vault \
-  consul=1.22.2 \
+  consul=1.22.2-1 \
   nomad  \
   &>/dev/null
 
 else
 sudo apt-get install -y \
   vault-enterprise \
-  consul-enterprise=1.22.2 \
+  consul-enterprise=1.22.2-1 \
   nomad-enterprise  \
   &>/dev/null
 
