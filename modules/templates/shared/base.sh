@@ -122,7 +122,7 @@ sudo apt-get install -y \
 else
 sudo apt-get install -y \
   vault-enterprise \
-  consul-enterprise=1.22.2-1 \
+  consul-enterprise=1.22.2+ent-1 \
   nomad-enterprise  \
   &>/dev/null
 
