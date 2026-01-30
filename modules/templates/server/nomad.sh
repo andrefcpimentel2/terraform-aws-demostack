@@ -95,6 +95,16 @@ client {
       path = "/etc/nomad.d/host-volumes/wp-runner"
       read_only = false
     }
+
+  host_volume "ollama-data-host" {
+    path      = "/etc/nomad.d/host-volumes/ollama"
+    read_only = false
+  }
+
+  host_volume "webui-data-host" {
+    path      = "/etc/nomad.d/host-volumes/open-webui"
+    read_only = false
+  }
   
 
    options {
