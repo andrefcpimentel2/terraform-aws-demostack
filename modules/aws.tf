@@ -13,8 +13,8 @@ data "aws_route53_zone" "fdqn" {
    most_recent = true
    filter {
      name = "name"
-     # values = ["ubuntu/images/*ubuntu-noble-24.04-amd64-server-*"]
-     values = ["ubuntu/images/*ubuntu-noble-24.04-arm64-server-*"]
+     # values = ["ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"]
+     values = ["ubuntu/images/*ubuntu-jammy-22.04-arm64-server-*"]
    }
 
    filter {
