@@ -108,5 +108,5 @@ resource "aws_instance" "workers" {
   )
 
 
-  user_data = element(data.cloudinit_config.workers.*.rendered, count.index)
+  user_data_base64 = element(data.cloudinit_config.workers.*.rendered, count.index)
 }
