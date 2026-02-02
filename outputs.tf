@@ -48,6 +48,13 @@ output "Servers" {
     server.servers
   ]
 }
+
+output "Workers" {
+  value = [
+    for worker in module.cluster :
+    worker.workers
+  ]
+}
 /**
 output "Primary_k8s_eks_endpoint"{
   value = module.primarycluster.eks_endpoint
