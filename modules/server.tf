@@ -96,6 +96,12 @@ resource "aws_instance" "servers" {
   subnet_id              = element(aws_subnet.demostack.*.id, count.index)
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   vpc_security_group_ids = [aws_security_group.demostack.id]
+
+  lifecycle {
+      ignore_changes = [
+         all
+      ]  
+   }
   root_block_device {
     volume_size           = "240"
     delete_on_termination = "true"
