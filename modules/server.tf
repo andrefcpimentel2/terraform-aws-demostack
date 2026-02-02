@@ -98,9 +98,8 @@ resource "aws_instance" "servers" {
   vpc_security_group_ids = [aws_security_group.demostack.id]
 
   lifecycle {
-      ignore_changes = [
-         all
-      ]  
+      ignore_changes = all
+ 
    }
   root_block_device {
     volume_size           = "240"

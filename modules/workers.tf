@@ -86,9 +86,7 @@ resource "aws_instance" "workers" {
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   vpc_security_group_ids = [aws_security_group.demostack.id]
   lifecycle {
-      ignore_changes = [
-         all
-      ]  
+      ignore_changes = all 
    }
 
   root_block_device {
