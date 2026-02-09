@@ -127,6 +127,15 @@ plugin "qemu" {
     image_paths = ["/tmp"]
   }
 }
+
+plugin "nomad-device-nvidia" {
+  config {
+    enabled            = true
+    fingerprint_period = "1m"
+  }
+}
+
+
 EOF
 
 echo "--> Writing profile"
