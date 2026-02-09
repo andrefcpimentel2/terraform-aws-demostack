@@ -110,6 +110,22 @@ EOF
     echo "--> Mysql failed, probably already done"
 }
 
+echo "--> Ollama"
+{
+sudo tee  /etc/nomad.d/default_jobs/ollama_ebs_volume.hcl > /dev/null <<EOF
+# volume registration
+type = "csi"
+id = "ollama"
+name = "ollama"
+external_id = "${aws_ebs_volume_ollama_id}"
+access_mode = "single-node-writer"
+attachment_mode = "file-system"
+plugin_id = "aws-ebs0"
+EOF
+} || {
+    echo "--> ollama failed, probably already done"
+}
+
 echo "--> Mongodb"
 {
 sudo tee  /etc/nomad.d/default_jobs/mongodb_ebs_volume.hcl > /dev/null <<EOF
@@ -183,6 +199,8 @@ nomad run  /etc/nomad.d/default_jobs/plugin-ebs-nodes.nomad
 
 sleep 5
 nomad volume register /etc/nomad.d/default_jobs/mongodb_ebs_volume.hcl
+sleep 5
+nomad volume register /etc/nomad.d/default_jobs/ollama_ebs_volume.hcl
 else
 echo "--> not the last worker, skip"
 fi
