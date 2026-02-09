@@ -69,6 +69,7 @@ data "cloudinit_config" "workers" {
     aws_ebs_volume_mysql_id      = aws_ebs_volume.shared.id
     aws_ebs_volume_mongodb_id    = aws_ebs_volume.mongodb.id
     aws_ebs_volume_prometheus_id = aws_ebs_volume.prometheus.id
+    aws_ebs_volume_ollama_id     = aws_ebs_volume.ollama.id
     aws_ebs_volume_shared_id     = aws_ebs_volume.shared.id
     })
   }
