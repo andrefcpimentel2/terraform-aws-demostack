@@ -66,11 +66,11 @@ data "cloudinit_config" "workers" {
       dc1                          = data.aws_availability_zones.available.names[0]
       dc2                          = data.aws_availability_zones.available.names[1]
       dc3                          = data.aws_availability_zones.available.names[2]
-      aws_ebs_volume_mysql_id      = aws_ebs_volume.shared.id
-      aws_ebs_volume_mongodb_id    = aws_ebs_volume.mongodb.id
-      aws_ebs_volume_prometheus_id = aws_ebs_volume.prometheus.id
-      aws_ebs_volume_ollama_id     = aws_ebs_volume.ollama.id
-      aws_ebs_volume_shared_id     = aws_ebs_volume.shared.id
+      # aws_ebs_volume_mysql_id      = aws_ebs_volume.shared.id
+      # aws_ebs_volume_mongodb_id    = aws_ebs_volume.mongodb.id
+      # aws_ebs_volume_prometheus_id = aws_ebs_volume.prometheus.id
+      # aws_ebs_volume_ollama_id     = aws_ebs_volume.ollama.id
+      # aws_ebs_volume_shared_id     = aws_ebs_volume.shared.id
     })
   }
   #end
