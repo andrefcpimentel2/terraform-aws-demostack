@@ -20,7 +20,7 @@ echo "--> Ollama"
 sudo tee  /etc/nomad.d/default_jobs/ollama_ebs_volume.hcl > /dev/null <<EOF
 # volume registration
 type  = "host"
-node_id = "${NODE_ID}"
+node_id = "$NODE_ID"
 name = "ollama"
 capacity = "80GB"
 capability {
