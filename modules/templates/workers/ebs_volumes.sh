@@ -101,9 +101,11 @@ sudo tee  /etc/nomad.d/default_jobs/mysql_ebs_volume.hcl > /dev/null <<EOF
 type = "csi"
 id = "mysql"
 name = "mysql"
-external_id = "${aws_ebs_volume_mysql_id}"
-access_mode = "single-node-writer"
-attachment_mode = "file-system"
+volume_id = "${aws_ebs_volume_mysql_id}"
+capability {
+  access_mode     = "single-node-writer"
+  attachment_mode = "file-system"
+}
 plugin_id = "aws-ebs0"
 EOF
 } || {
@@ -117,9 +119,11 @@ sudo tee  /etc/nomad.d/default_jobs/ollama_ebs_volume.hcl > /dev/null <<EOF
 type = "csi"
 id = "ollama"
 name = "ollama"
-external_id = "${aws_ebs_volume_ollama_id}"
-access_mode = "single-node-writer"
-attachment_mode = "file-system"
+volume_id = "${aws_ebs_volume_ollama_id}"
+capability {
+  access_mode     = "single-node-writer"
+  attachment_mode = "file-system"
+}
 plugin_id = "aws-ebs0"
 EOF
 } || {
@@ -133,9 +137,11 @@ sudo tee  /etc/nomad.d/default_jobs/mongodb_ebs_volume.hcl > /dev/null <<EOF
 type = "csi"
 id = "mongodb"
 name = "mongodb"
-external_id = "${aws_ebs_volume_mongodb_id}"
-access_mode = "single-node-writer"
-attachment_mode = "file-system"
+volume_id = "${aws_ebs_volume_mongodb_id}"
+capability {
+  access_mode     = "single-node-writer"
+  attachment_mode = "file-system"
+}
 plugin_id = "aws-ebs0"
 EOF
 
@@ -151,9 +157,11 @@ sudo tee  /etc/nomad.d/default_jobs/prometheus_ebs_volume.hcl > /dev/null <<EOF
 type = "csi"
 id = "prometheus"
 name = "prometheus"
-external_id = "${aws_ebs_volume_prometheus_id}"
-access_mode = "single-node-writer"
-attachment_mode = "file-system"
+volume_id = "${aws_ebs_volume_prometheus_id}"
+capability {
+  access_mode     = "single-node-writer"
+  attachment_mode = "file-system"
+}
 plugin_id = "aws-ebs0"
 EOF
 } || {
@@ -166,9 +174,11 @@ sudo tee  /etc/nomad.d/default_jobs/shared_ebs_volume.hcl > /dev/null <<EOF
 type = "csi"
 id = "shared"
 name = "shared"
-external_id = "${aws_ebs_volume_shared_id}"
-access_mode = "single-node-writer"
-attachment_mode = "file-system"
+volume_id = "${aws_ebs_volume_shared_id}"
+capability {
+  access_mode     = "single-node-writer"
+  attachment_mode = "file-system"
+}
 plugin_id = "aws-ebs0"
 EOF
 } || {
@@ -195,11 +205,12 @@ while [ "$(nomad server members 2>&1 | grep "alive" | wc -l)" -lt "${nomad_serve
 done
 ####
 nomad run  /etc/nomad.d/default_jobs/plugin-ebs-controller.nomad
+sleep 30
 nomad run  /etc/nomad.d/default_jobs/plugin-ebs-nodes.nomad
 
-sleep 5
+sleep 30
 nomad volume register /etc/nomad.d/default_jobs/mongodb_ebs_volume.hcl
-sleep 5
+sleep 30
 nomad volume register /etc/nomad.d/default_jobs/ollama_ebs_volume.hcl
 else
 echo "--> not the last worker, skip"
