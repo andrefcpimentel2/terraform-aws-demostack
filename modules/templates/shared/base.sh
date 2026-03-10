@@ -70,7 +70,7 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
 
 
 echo "--> updated version of Nodejs"
-curl -sL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_25.x | sudo -E bash -
 
 sudo apt update
 

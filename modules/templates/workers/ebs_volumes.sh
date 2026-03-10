@@ -13,15 +13,16 @@ done
 
 echo "--> Configuring EBS mounts"
 
-export NODE_ID=$(nomad node status -self | grep ID | awk -F '=' '{print $2}'
+export NODE_ID=$(nomad node status -self | grep ID | awk -F '= ' '{print $2}')
 
 echo "--> Ollama"
-{
+
 sudo tee  /etc/nomad.d/default_jobs/ollama_ebs_volume.hcl > /dev/null <<EOF
 # volume registration
 type  = "host"
 node_id = "$NODE_ID"
 name = "ollama"
+host_path = "/etc/nomad.d/host-volumes/wp-runner"
 capacity = "80GB"
 capability {
   access_mode     = "single-node-writer"
@@ -29,9 +30,7 @@ capability {
 }
 plugin_id = "mkdir"
 EOF
-} || {
-    echo "--> ollama failed, probably already done"
-}
+ 
 
 
 
