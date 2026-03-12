@@ -77,36 +77,38 @@ sudo apt update
 echo "--> Installing common dependencies"
 
 echo "--> Installing common dependencies 0"
-sudo apt-get install -y \
+sudo apt install -y \
   nodejs \
   curl \
   emacs &>/dev/null
   echo "--> Installing common dependencies 1"
-sudo apt-get install -y \
+sudo apt install -y \
   git \
   jq \
   tmux \
   unzip \
   vim &>/dev/null
   echo "--> Installing common dependencies 2"
-sudo apt-get install -y \
+sudo apt install -y \
   wget \
   tree \
   nfs-kernel-server \
   nfs-common &>/dev/null
   echo "--> Installing common dependencies 3"
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq \
+
+
+sudo DEBIAN_FRONTEND=noninteractive apt install -yq \
   python3-pip \
   ruby-full \
   apt-transport-https \
   ca-certificates &>/dev/null
   echo "--> Installing common dependencies 4"
-sudo apt-get install -y \
+sudo apt install -y \
   gnupg-agent \
   software-properties-common \
   openjdk-25-jdk-headless &>/dev/null
   echo "--> Installing common dependencies 5"
-sudo apt-get install -y \
+sudo apt install -y \
   prometheus-node-exporter \
   golang-go \
   alien \
