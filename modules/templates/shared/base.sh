@@ -78,6 +78,10 @@ sudo apt-get purge --auto-remove postfix -y &>/dev/null
 
 echo "--> Installing common dependencies"
 
+echo "postfix postfix/main_mailer_type select No configuration" | sudo debconf-set-selections
+sudo apt install -y postfix &>/dev/null
+
+
 echo "--> Installing common dependencies 0"
 sudo apt install -y \
   nodejs \
