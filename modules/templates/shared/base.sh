@@ -73,7 +73,7 @@ echo "--> updated version of Nodejs"
 curl -sL https://deb.nodesource.com/setup_25.x | sudo -E bash -
 
 sudo apt update
-
+export DEBIAN_FRONTEND=noninteractive
 echo "--> Installing common dependencies"
 
 echo "--> Installing common dependencies 0"
@@ -102,7 +102,6 @@ sudo apt-get install -y \
   ca-certificates &>/dev/null
   echo "--> Installing common dependencies 4"
 sudo apt-get install -y \
-  curl \
   gnupg-agent \
   software-properties-common \
   openjdk-25-jdk-headless &>/dev/null
