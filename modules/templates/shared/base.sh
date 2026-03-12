@@ -73,7 +73,7 @@ echo "--> updated version of Nodejs"
 curl -sL https://deb.nodesource.com/setup_25.x | sudo -E bash -
 
 sudo apt update
-export DEBIAN_FRONTEND=noninteractive
+
 echo "--> Installing common dependencies"
 
 echo "--> Installing common dependencies 0"
@@ -95,7 +95,7 @@ sudo apt-get install -y \
   nfs-kernel-server \
   nfs-common &>/dev/null
   echo "--> Installing common dependencies 3"
-sudo apt-get install -y \
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq \
   python3-pip \
   ruby-full \
   apt-transport-https \
