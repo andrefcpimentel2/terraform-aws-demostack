@@ -73,7 +73,7 @@ echo "--> updated version of Nodejs"
 curl -sL https://deb.nodesource.com/setup_25.x | sudo -E bash -
 
 sudo apt update
-sudo apt purge postfix -y
+sudo apt purge postfix -y &>/dev/null
 
 echo "--> Installing common dependencies"
 
