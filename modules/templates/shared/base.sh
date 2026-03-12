@@ -98,7 +98,7 @@ sudo apt install -y \
 
 
 sudo DEBIAN_FRONTEND=noninteractive apt install -yq \
-  python3-pip \
+  # python3-pip \
   ruby-full \
   apt-transport-https \
   ca-certificates &>/dev/null
