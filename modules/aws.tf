@@ -30,7 +30,7 @@ data "aws_route53_zone" "fdqn" {
 
   filter {
     name   = "name"
-    values = [format("hc-base-ubuntu-2404-%s-*", "arm64")]
+    values = [format("hc-base-ubuntu-2204-%s-*", "arm64")]
     # values = [format("hc-base-ubuntu-2404-%s-*", each.value)]
   }
   filter {
