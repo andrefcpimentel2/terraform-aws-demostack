@@ -73,6 +73,7 @@ echo "--> updated version of Nodejs"
 curl -sL https://deb.nodesource.com/setup_25.x | sudo -E bash -
 
 sudo apt update
+sudo dpkg-reconfigure -f noninteractive postfix
 
 echo "--> Installing common dependencies"
 
@@ -98,7 +99,7 @@ sudo apt install -y \
 
 
 sudo DEBIAN_FRONTEND=noninteractive apt install -yq \
-  # python3-pip \
+  python3-pip \
   ruby-full \
   apt-transport-https \
   ca-certificates &>/dev/null
