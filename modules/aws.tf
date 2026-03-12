@@ -26,11 +26,11 @@ data "aws_route53_zone" "fdqn" {
 #  }
 
  data "aws_ami" "ubuntu" {
- # for_each = toset(["amd64", "arm64"])
+#  for_each = toset(["amd64", "arm64"])
 
   filter {
     name   = "name"
-    values = [format("hc-base-ubuntu-2204-%s-*", "arm64")]
+    values = [format("hc-base-ubuntu-2404-%s-*", "arm64")]
     # values = [format("hc-base-ubuntu-2404-%s-*", each.value)]
   }
   filter {
