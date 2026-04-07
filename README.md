@@ -26,6 +26,8 @@ Set up are Nomad jobs, Vault configurations, and Consul queries.
 
  <TODO>
 
+ commit test
+
 ## Troubleshooting
 To begin debugging, check the cloud-init output:
 
