@@ -49,6 +49,13 @@ output "Servers" {
   ]
 }
 
+output "Servers_IPs" {
+  value = [
+    for server_ip in module.cluster :
+    server_ip.servers_IP
+  ]
+}
+
 output "Workers" {
   value = [
     for worker in module.cluster :

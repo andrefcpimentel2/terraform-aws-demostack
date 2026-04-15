@@ -4,6 +4,10 @@ output "servers" {
   value = aws_route53_record.servers.*.fqdn
 }
 
+output "servers_IP" {
+  value = aws_instance.servers.*.public_ip
+}
+
 output "workers" {
   value = aws_route53_record.workers.*.fqdn
 }
