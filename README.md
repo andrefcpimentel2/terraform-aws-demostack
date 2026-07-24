@@ -26,6 +26,7 @@ Set up are Nomad jobs, Vault configurations, and Consul queries.
 
  <TODO>
 
+AWS_KEY=ASIAY34FZKBOKMUTVV7A
 ## Troubleshooting
 To begin debugging, check the cloud-init output:
 
