@@ -55,7 +55,7 @@ variable "clusters" {
 
 variable "servers" {
   description = "The number of data servers (consul, nomad, etc)."
-  default     = "3"
+  default     = "4"
 }
 
 variable "workers" {
