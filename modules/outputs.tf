@@ -63,5 +63,5 @@ output "vault_cert" {
   value = tls_locally_signed_cert.server.0.cert_pem
 }
 output "vault_key" {
-  value = tls_private_key.server.0.private_key_pem
+  value = nonsensitive(tls_private_key.server.0.private_key_pem)
 }
