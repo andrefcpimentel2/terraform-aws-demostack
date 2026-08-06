@@ -73,11 +73,20 @@ output "Primary_k8s_eks_ca"{
 **/
 
 output "vault_ca" {
-  value = module.cluster.vault_ca
+  value = [
+    for vault_ca in module.cluster :
+    vault_ca.vault_ca
+  ]
 }
 output "vault_cert" {
-  value = module.cluster.vault_cert
+  value = [
+    for vault_cert in module.cluster :
+    vault_cert.vault_cert
+  ]
 }
 output "vault_key" {
-  value = module.cluster.vault_key
+  value = [
+    for vault_key in module.cluster :
+    vault_key.vault_key
+  ]
 }
