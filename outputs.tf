@@ -85,8 +85,8 @@ output "vault_cert" {
   ]
 }
 output "vault_key" {
-  value = [
+  value = nonsensitive([
     for vault_key in module.cluster :
     vault_key.vault_key
-  ]
+  ])
 }
