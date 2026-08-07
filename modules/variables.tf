@@ -2,11 +2,11 @@
 locals {
   # Common tags to be assigned to all resources
   common_tags = {
-    Name            = var.namespace
-    owner           = var.owner
-    created-by      = var.created-by
-    sleep-at-night  = var.sleep-at-night
-    ttl             = var.TTL
+    Name           = var.namespace
+    owner          = var.owner
+    created-by     = var.created-by
+    sleep-at-night = var.sleep-at-night
+    ttl            = var.TTL
     se-region      = var.region
     terraform      = true
     purpose        = "SE Demostack"
@@ -55,7 +55,7 @@ variable "owner" {
 
 variable "hashi_region" {
   description = "the region the owner belongs in.  e.g. NA-WEST-ENT, EU-CENTRAL"
-  default = "EMEA"
+  default     = "EMEA"
 }
 
 variable "created-by" {
@@ -123,6 +123,12 @@ variable "instance_type_worker" {
   description = "The type(size) of data workers (consul, nomad, etc)."
   default     = "t4g.xlarge"
 }
+
+variable "instance_type_splunk" {
+  description = "The type(size) of the Splunk server."
+  default     = "t4g.xlarge"
+}
+
 variable "windows_instance_type_worker" {
   description = "The type(size) of data worker (consul, nomad, etc)."
   default     = "t3.medium"
@@ -168,7 +174,7 @@ variable "f5_username" {
 variable "f5_password" {
   description = "F5 password"
   default     = "admin"
-  sensitive = true
+  sensitive   = true
 }
 
 variable "f5_ami_search_name" {
@@ -187,7 +193,7 @@ variable "postgres_password" {
   default     = "YourPwdShouldBeLongAndSecure!"
 }
 
-  variable "postgres_db_name" {
+variable "postgres_db_name" {
   description = "Db_name that will be used to create the AWS Postgres instance"
   default     = "postgress"
 }
@@ -202,7 +208,7 @@ variable "mysql_password" {
   default     = "YourPwdShouldBeLongAndSecure!"
 }
 
-  variable "mysql_db_name" {
+variable "mysql_db_name" {
   description = "Db_name that will be used to create the AWS mysql instance"
   default     = "mydb"
 }
@@ -215,4 +221,10 @@ variable "documentdb_master_username" {
 variable "documentdb_master__password" {
   description = "Password that will be used to create the AWS Postgres instance"
   default     = "YourPwdShouldBeLongAndSecure!"
+}
+
+variable "splunk_password" {
+  description = "splunk password"
+  default     = "hashicorp123"
+  sensitive = true
 }
