@@ -183,59 +183,6 @@ then
   }
 fi
 
-echo "--> Shipping Vault audit logs and telemetry to Splunk"
-sudo tee /usr/local/bin/vault-to-splunk.sh > /dev/null <<EOF
-#!/usr/bin/env bash
-set -e
-TOKEN=\$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-LOCAL_IP=\$(curl -s -H "X-aws-ec2-metadata-token: \$TOKEN" http://169.254.169.254/latest/meta-data/local-ipv4)
-HOSTNAME=\$(hostname)
-VAULT_ADDR_LOCAL="https://\$LOCAL_IP:8200"
-
-ship_payload() {
-  local sourcetype="\$1"
-  local payload="\$2"
-
-  curl -sS \
-    -H "Authorization: Splunk ${splunk_hec_token}" \
-    -H "Content-Type: application/json" \
-    -d "{\"host\":\"\$HOSTNAME\",\"source\":\"vault\",\"sourcetype\":\"\$sourcetype\",\"event\":\$payload}" \
-    "${splunk_hec_url}" >/dev/null
-}
-
-if [ -f /var/log/vault_audit.log ]; then
-  tail -n0 -F /var/log/vault_audit.log | while read -r line; do
-    payload=\$(printf '%s' "\$line" | jq -R '{line: .}')
-    ship_payload "vault:audit" "\$payload"
-  done
-fi &
-
-while true; do
-  payload=\$(curl -sk "\$VAULT_ADDR_LOCAL/v1/sys/metrics?format=prometheus" | jq -Rs --arg ip "\$LOCAL_IP" '{metrics: ., host_ip: $ip}')
-  ship_payload "vault:telemetry" "\$payload"
-  sleep 30
-done
-EOF
-sudo chmod +x /usr/local/bin/vault-to-splunk.sh
-
-sudo tee /etc/systemd/system/vault-to-splunk.service > /dev/null <<"EOF"
-[Unit]
-Description=Ship Vault audit logs and telemetry to Splunk
-After=vault.service network-online.target
-Requires=network-online.target
-
-[Service]
-Type=simple
-Restart=always
-ExecStart=/usr/local/bin/vault-to-splunk.sh
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable vault-to-splunk
-sudo systemctl restart vault-to-splunk
 
 echo "--> Attempting to create nomad role"
 
@@ -442,5 +389,38 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
   echo "--> worker-auth key already exists, moving on"
 }
 
+
+echo "==> Vault audit logs to splunk"
+sudo tee /etc/td-agent/td-agent.conf > /dev/null <<EOF
+<source> 
+ @type tail 
+ path /var/log/vault/vault-audit.log 
+ pos_file /var/log/td-agent/vault-audit.pos 
+ tag vault.audit 
+ <parse> 
+   @type json 
+   time_key time 
+   time_format %Y-%m-%dT%H:%M:%S.%NZ 
+   keep_time_key true 
+ </parse> 
+</source> 
+ 
+<match vault.audit> 
+ @type splunk_hec 
+ hec_host ${splunk_hec_url} 
+ hec_port 8088 
+ hec_token ${splunk_hec_token} 
+ index vault-audit 
+ sourcetype _json 
+ insecure_ssl true   # Set to false if using valid CA-signed SSL certificates 
+ <buffer> 
+   @type file 
+   path /var/log/td-agent/buffer/splunk_hec 
+   flush_interval 5s 
+ </buffer> 
+</match>
+EOF
+
+sudo systemctl start fluent-package
 
 echo "==> Vault is done!"

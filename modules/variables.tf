@@ -124,10 +124,6 @@ variable "instance_type_worker" {
   default     = "t4g.xlarge"
 }
 
-variable "instance_type_splunk" {
-  description = "The type(size) of the Splunk server."
-  default     = "t4g.xlarge"
-}
 
 variable "windows_instance_type_worker" {
   description = "The type(size) of data worker (consul, nomad, etc)."
@@ -223,8 +219,11 @@ variable "documentdb_master__password" {
   default     = "YourPwdShouldBeLongAndSecure!"
 }
 
-variable "splunk_password" {
-  description = "splunk password"
-  default     = "hashicorp123"
-  sensitive = true
+variable "splunk_hec_url" {
+  description = "Splunk HEC URL"
+  default     = "https://splunk.example.com:8088"
 }
+ variable "splunk_hec_token" {
+  description = "Splunk HEC Token"
+  default     = "demostack-splunk"
+ }

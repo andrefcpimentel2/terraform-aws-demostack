@@ -180,5 +180,7 @@ fi
 #  getenvoy run standard:1.16.0 -- --version
 #  sudo cp ~/.getenvoy/builds/standard/1.16.0/linux_glibc/bin/envoy /usr/bin/
 
+echo "--> Install fluentD"
+curl -fsSL https://fluentd.cdn.cncf.io/sh/install-ubuntu-noble-fluent-package6-lts.sh | sh
 
 echo "==> Base is done!"

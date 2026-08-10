@@ -65,9 +65,9 @@ data "cloudinit_config" "servers" {
       vault_api_addr       = "https://${aws_route53_record.vault.fqdn}:8200"
       vault_join_tag_key   = "VaultJoin"
       vault_join_tag_value = var.consul_join_tag_value
-      splunk_hec_url       = "http://${aws_instance.splunk.private_ip}:8088/services/collector/event"
-      splunk_hec_token     = var.namespace
-      splunk_syslog_host   = aws_instance.splunk.private_ip
+      splunk_hec_url       = var.splunk_hec_url
+      splunk_hec_token     = var.splunk_hec_token
+
       # Nomad
       NOMAD_LB = "$https://${aws_route53_record.nomad.fqdn}:4646"
     })
@@ -131,54 +131,3 @@ resource "aws_instance" "servers" {
   user_data_base64 = element(data.cloudinit_config.servers.*.rendered, count.index)
 }
 
-resource "aws_instance" "splunk" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type_splunk
-  key_name      = aws_key_pair.demostack.id
-
-  subnet_id              = aws_subnet.demostack[0].id
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
-  vpc_security_group_ids = [aws_security_group.demostack.id]
-
-  lifecycle {
-    ignore_changes = all
-
-  }
-
-  root_block_device {
-    volume_size           = "240"
-    delete_on_termination = "true"
-  }
-
-  user_data = <<-EOF
-  #!/usr/bin/env bash
-  set -e
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update
-  apt-get install -y docker.io curl
-  systemctl enable docker
-  systemctl start docker
-  mkdir -p /opt/splunk/etc
-  cat <<'TOKEN' >/opt/splunk/etc/hec-token
-  ${var.namespace}
-  TOKEN
-  docker run -d \
-    --name splunk \
-    --restart unless-stopped \
-    -p 8000:8000 \
-    -p 8088:8088 \
-    -p 8089:8089 \
-    -p 9997:9997 \
-    -e SPLUNK_START_ARGS=--accept-license \
-    -e SPLUNK_PASSWORD=${var.splunk_password} \
-    -e SPLUNK_HEC_TOKEN=${var.namespace} \
-    splunk/splunk:latest
-  EOF
-
-  tags = merge(local.common_tags, {
-    Purpose  = var.namespace,
-    Function = "splunk",
-    Name     = "${var.namespace}-splunk",
-    }
-  )
-}
