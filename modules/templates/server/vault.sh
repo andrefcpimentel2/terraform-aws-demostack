@@ -391,10 +391,15 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
 
 
 echo "==> Vault audit logs to splunk"
-sudo tee /etc/td-agent/td-agent.conf > /dev/null <<EOF
+
+echo "--> Install fluentD"
+curl -fsSL https://fluentd.cdn.cncf.io/sh/install-ubuntu-noble-fluent-package6-lts.sh | sudo sh
+
+
+sudo tee /etc/fluent/fluentd.conf > /dev/null <<EOF
 <source> 
  @type tail 
- path /var/log/vault/vault-audit.log 
+ path /var/log/vault_audit.log 
  pos_file /var/log/td-agent/vault-audit.pos 
  tag vault.audit 
  <parse> 
@@ -413,14 +418,9 @@ sudo tee /etc/td-agent/td-agent.conf > /dev/null <<EOF
  index vault-audit 
  sourcetype _json 
  insecure_ssl true   # Set to false if using valid CA-signed SSL certificates 
- <buffer> 
-   @type file 
-   path /var/log/td-agent/buffer/splunk_hec 
-   flush_interval 5s 
- </buffer> 
 </match>
 EOF
 
-sudo systemctl start fluent-package
+sudo systemctl start fluentd.service
 
 echo "==> Vault is done!"
