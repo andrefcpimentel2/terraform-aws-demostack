@@ -408,7 +408,7 @@ env:
 
 # service configuration
 service:
-    flush:       ${flush_interval}
+    flush:       1
     log_level:   info
     http_server: off
     hc_http_status: on
