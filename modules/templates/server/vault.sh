@@ -464,7 +464,7 @@ pipeline:
           host: ${splunk_hec_url}
           port: 8088
           splunk_send_raw: on
-          splunk_token: ${}
+          splunk_token: ${splunk_hec_token}
           tls: off
         - name: splunk
           match: vault-audit
