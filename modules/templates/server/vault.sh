@@ -80,14 +80,15 @@ seal "awskms" {
   kms_key_id = "${kmskey}"
 }
 telemetry {
-  prometheus_retention_time = "30s"
-  disable_hostname          = true
+  disable_hostname = true
+  enable_hostname_label = false
+  statsd_address = "localhost:8125"
 }
 replication {
       resolver_discover_servers = false
 }
-api_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8200"
-cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8201"
+api_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8200"
+cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8201"
 # api_addr = "${vault_api_addr}"
 disable_mlock = true
 ui = true
@@ -102,7 +103,7 @@ EOF
 source /etc/profile.d/vault.sh
 
 echo "--> Generating systemd configuration"
-sudo tee /etc/systemd/system/vault.service > /dev/null <<"EOF"
+sudo tee /etc/systemd/system/vault.service > /dev/null <<"EOF":wq
 [Unit]
 Description=Vault
 Documentation=https://www.vaultproject.io/docs/
