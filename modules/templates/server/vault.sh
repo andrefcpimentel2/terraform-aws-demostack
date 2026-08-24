@@ -88,9 +88,8 @@ replication {
       resolver_discover_servers = false
 }
 #api_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8200"
-#cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8201"
+cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8201"
  api_addr = "https://vault.eu-andrestack.andre.sbx.hashidemos.io:8200"
- cluster_addr = "https://vault.eu-andrestack.andre.sbx.hashidemos.io:8201"
 disable_mlock = true
 ui = true
 raw_storage_endpoint = true
