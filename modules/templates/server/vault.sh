@@ -47,6 +47,7 @@ service_registration "consul" {
   node_id = "vault_${node_name}"
   retry_join {
     auto_join = "provider=aws tag_key=${vault_join_tag_key} tag_value=${vault_join_tag_value} addr_type=private_v4"
+    #leader_tls_servername = "${vault_api_addr}"
     leader_tls_servername = "${namespace}-server-0.node.consul"
     leader_ca_cert_file = "/usr/local/share/ca-certificates/01-me.crt"
     leader_client_cert_file = "/etc/vault.d/tls/vault.crt"
@@ -80,15 +81,16 @@ seal "awskms" {
   kms_key_id = "${kmskey}"
 }
 telemetry {
-  prometheus_retention_time = "30s",
   disable_hostname = true
+  enable_hostname_label = false
+  statsd_address = "localhost:8125"
 }
 replication {
       resolver_discover_servers = false
 }
-api_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8200"
-cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8201"
-# api_addr = "${vault_api_addr}"
+api_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8200"
+cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8201"
+
 disable_mlock = true
 ui = true
 raw_storage_endpoint = true
@@ -102,7 +104,7 @@ EOF
 source /etc/profile.d/vault.sh
 
 echo "--> Generating systemd configuration"
-sudo tee /etc/systemd/system/vault.service > /dev/null <<"EOF"
+sudo tee /etc/systemd/system/vault.service > /dev/null <<"EOF":wq
 [Unit]
 Description=Vault
 Documentation=https://www.vaultproject.io/docs/
@@ -167,6 +169,22 @@ while [[ $HTTP_STATUS -ne 200 && $HTTP_STATUS -ne 473 && $HTTP_STATUS -ne 429 ]]
 done
 
 echo "HTTP status code is either 200 or 473. Continuing with the script..."
+
+export VAULT_TOKEN=$(consul kv get service/vault/root-token)
+export VAULT_ADDR="https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8200"
+export VAULT_SKIP_VERIFY=true
+
+if [ "${node_name}" == "${namespace}-server-0" ]
+then
+  echo "--> Enabling Vault file audit device"
+  {
+    vault audit enable file file_path=/var/log/vault_audit.log
+  } ||
+  {
+    echo "--> Vault file audit device already enabled, moving on"
+  }
+fi
+
 
 echo "--> Attempting to create nomad role"
 
@@ -373,5 +391,100 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
   echo "--> worker-auth key already exists, moving on"
 }
 
+
+echo "==> Vault audit logs to splunk"
+
+echo "--> Install fluentbit"
+sudo sh -c 'curl https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > /usr/share/keyrings/fluentbit-keyring.gpg'
+codename=$(grep -oP '(?<=VERSION_CODENAME=).*' /etc/os-release 2>/dev/null || lsb_release -cs 2>/dev/null)
+echo "deb [signed-by=/usr/share/keyrings/fluentbit-keyring.gpg] https://packages.fluentbit.io/ubuntu/$codename $codename main" | sudo tee /etc/apt/sources.list.d/fluent-bit.list
+sudo apt-get update
+sudo apt-get install fluent-bit
+sudo fluent-bit -c /etc/fluent-bit/fluent-bit.yaml
+sudo tee /etc/fluent-bit/fluent-bit.yaml > /dev/null <<EOF
+# Fluent Bit example configuration for Vault servers
+
+# local environment variables
+env:
+    flush_interval: 1
+
+# service configuration
+service:
+    flush:       1
+    log_level:   info
+    http_server: off
+    hc_http_status: on
+    hc_period: 5
+    hc_errors_count: 5
+    hc_retry_failure_count: 5
+
+parsers:
+  - name: json
+    format: json
+  - name: vault_audit
+    format: json
+    time_key: time
+    time_format: '%Y-%m-%dT%H:%M:%S %z'
+
+pipeline:
+    inputs:
+        # Vault file audit device
+        - name: tail
+          path: /var/log/vault_audit.log
+          parser: json
+          tag: vault-audit
+        # Vault telemetry metrics
+        - name: statsd
+          listen: 0.0.0.0
+          metrics: on
+          port: 8125
+          tag: vault-metrics
+        # System metrics
+        - name: cpu
+          tag: vault-system
+        - name: disk
+          tag: vault-system
+          interval_sec: 1
+          interval_nsec: 0
+        - name: mem
+          tag: vault-system
+        - name: netif
+          tag: vault-system
+          interval_sec: 1
+          interval_nsec: 0
+          interface: ens4
+        - name: proc
+          proc_name: vault
+          interval_sec: 1
+          interval_nsec: 0
+          fd: true
+          mem: true
+          tag: vault-system
+    outputs:
+        - name: splunk
+          match: vault-metrics
+          host: ${splunk_hec_url}
+          port: 8088
+          splunk_send_raw: on
+          splunk_token: ${splunk_hec_token}
+          tls: off
+        - name: splunk
+          match: vault-audit
+          host: ${splunk_hec_url}
+          port: 8088
+          splunk_send_raw: off
+          splunk_token: ${splunk_hec_token}
+          tls: off
+        - name: splunk
+          match: vault-system
+          host: ${splunk_hec_url}
+          port: 8088
+          splunk_send_raw: off
+          splunk_token: ${splunk_hec_token}
+          tls: off
+
+EOF
+
+sudo systemctl start fluent-bit
 
 echo "==> Vault is done!"

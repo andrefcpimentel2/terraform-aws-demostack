@@ -183,3 +183,9 @@ variable "f5_password" {
   default     = "admin"
   sensitive = true
 }
+
+variable "splunk_password" {
+  description = "splunk password"
+  default     = "hashicorp123"
+  sensitive = true
+}
