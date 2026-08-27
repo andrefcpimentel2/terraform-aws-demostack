@@ -47,7 +47,8 @@ service_registration "consul" {
   node_id = "vault_${node_name}"
   retry_join {
     auto_join = "provider=aws tag_key=${vault_join_tag_key} tag_value=${vault_join_tag_value} addr_type=private_v4"
-    leader_tls_servername = "${namespace}-server-0.node.consul"
+    leader_tls_servername = "${vault_api_addr}"
+    #leader_tls_servername = "${namespace}-server-0.node.consul"
     leader_ca_cert_file = "/usr/local/share/ca-certificates/01-me.crt"
     leader_client_cert_file = "/etc/vault.d/tls/vault.crt"
     leader_client_key_file = "/etc/ssl/certs/me.key"
@@ -87,8 +88,9 @@ telemetry {
 replication {
       resolver_discover_servers = false
 }
+api_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8200"
 cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/public-ipv4):8201"
-api_addr = "${vault_api_addr}"
+
 disable_mlock = true
 ui = true
 raw_storage_endpoint = true
