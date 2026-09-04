@@ -183,3 +183,8 @@ variable "f5_password" {
   default     = "admin"
   sensitive = true
 }
+
+variable "dd_api_key"{
+  description = "Datadog API Key"
+  default     = ""
+}

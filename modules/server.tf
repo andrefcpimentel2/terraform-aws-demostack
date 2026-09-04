@@ -19,6 +19,7 @@ data "cloudinit_config" "servers" {
     vault0_cert    = tls_locally_signed_cert.server.0.cert_pem
     vault0_key     = tls_private_key.server.0.private_key_pem
     public_key = var.public_key
+    dd_api_key = var.dd_api_key
     })
    }
 

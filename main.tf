@@ -36,6 +36,7 @@ module "cluster" {
   run_nomad_jobs       = var.run_nomad_jobs
   host_access_ip       = var.host_access_ip
   primary_datacenter   = each.value.namespace
+  dd_api_key = var.dd_api_key
 
   # EMEA-SE-PLAYGROUND
   consul_join_tag_value = "${each.value.namespace}-${random_id.consul_join_tag_value.hex}"

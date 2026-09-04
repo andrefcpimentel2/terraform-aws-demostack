@@ -216,3 +216,8 @@ variable "documentdb_master__password" {
   description = "Password that will be used to create the AWS Postgres instance"
   default     = "YourPwdShouldBeLongAndSecure!"
 }
+
+variable "dd_api_key"{
+  description = "Datadog API Key"
+  default     = ""
+}
