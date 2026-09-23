@@ -116,54 +116,54 @@ resource "aws_alb_target_group_attachment" "vault_cluster" {
 }
 
 
-##########################################################
+# ##########################################################
 
-#Serving vault on port 443 for OIDC connector
-
-
-resource "aws_alb_target_group" "vault_443" {
-  name = "${var.namespace}-vault-443"
-  tags = local.common_tags
-
-  port     = "443"
-  vpc_id   = aws_vpc.demostack.id
-  protocol = "HTTPS"
-
-  health_check {
-    interval          = "5"
-    timeout           = "2"
-    path              = "/v1/sys/health"
-    port              = "443"
-    protocol          = "HTTPS"
-    matcher           = "200,472,473"
-    healthy_threshold = 2
-  }
-}
+# #Serving vault on port 443 for OIDC connector
 
 
-resource "aws_alb_listener" "vault_443" {
-  depends_on = [
-    aws_acm_certificate_validation.cert
-  ]
+# resource "aws_alb_target_group" "vault_443" {
+#   name = "${var.namespace}-vault-443"
+#   tags = local.common_tags
 
-  load_balancer_arn = aws_alb.vault.arn
+#   port     = "443"
+#   vpc_id   = aws_vpc.demostack.id
+#   protocol = "HTTPS"
 
-  port            = "443"
-  protocol        = "HTTPS"
-  certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-  ssl_policy      = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
-  default_action {
-    target_group_arn = aws_alb_target_group.vault_443.arn
-    type             = "forward"
-  }
+#   health_check {
+#     interval          = "5"
+#     timeout           = "2"
+#     path              = "/v1/sys/health"
+#     port              = "443"
+#     protocol          = "HTTPS"
+#     matcher           = "200,472,473"
+#     healthy_threshold = 2
+#   }
+# }
 
-}
+
+# resource "aws_alb_listener" "vault_443" {
+#   depends_on = [
+#     aws_acm_certificate_validation.cert
+#   ]
+
+#   load_balancer_arn = aws_alb.vault.arn
+
+#   port            = "443"
+#   protocol        = "HTTPS"
+#   certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
+#   ssl_policy      = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+#   default_action {
+#     target_group_arn = aws_alb_target_group.vault_443.arn
+#     type             = "forward"
+#   }
+
+# }
 
 
-resource "aws_alb_target_group_attachment" "vault_443" {
-  count            = var.servers
-  target_group_arn = aws_alb_target_group.vault_443.arn
-  target_id        = element(aws_instance.servers.*.id, count.index)
-  port             = "8200"
+# resource "aws_alb_target_group_attachment" "vault_443" {
+#   count            = var.servers
+#   target_group_arn = aws_alb_target_group.vault_443.arn
+#   target_id        = element(aws_instance.servers.*.id, count.index)
+#   port             = "8200"
   
-}
+# }
