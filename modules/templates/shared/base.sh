@@ -212,16 +212,6 @@ EOF
 echo "--> Writing Vault log collection config for Datadog"
 sudo mkdir -p /etc/datadog-agent/conf.d/vault.d
 sudo tee /etc/datadog-agent/conf.d/vault.d/conf.yaml > /dev/null <<EOF
-# init_config:
-
-# instances:
-#     ## @param api_url - string - required
-#     ## URL of the Vault to query.
-#   - api_url: http://localhost:8200/v1
-
-#     ## @param no_token - boolean - optional - default: false
-#     ## Attempt metric collection without a token.
-#     no_token: true
 logs:
   - type: journald
     source: vault
@@ -231,7 +221,7 @@ logs:
         name: vault_log_start
         pattern: "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
   - type: file
-    path: /var/log/vault_audit.log
+    path: /var/log/vault/vault_audit.log
     source: vault
 EOF
 

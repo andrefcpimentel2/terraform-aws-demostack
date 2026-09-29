@@ -180,6 +180,12 @@ echo "--> Attempting to create nomad role"
   export VAULT_ADDR="https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8200"
   export VAULT_SKIP_VERIFY=true
 
+echo "--> creating Vault audit log file
+sudo mkdir /var/log/vault
+sudo chmod -R 755 /var/log/vault
+vault audit enable file file_path=/var/log/vault/vault_audit.log
+sudo chmod -R 755 /var/log/vault
+
   vault policy write nomad-server - <<EOR
   path "auth/token/create/nomad-cluster" {
     capabilities = ["update"]
@@ -376,7 +382,14 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
   echo "--> worker-auth key already exists, moving on"
 }
 
-echo "--> creating Vaultr audit log file
+echo "--> creating vault audit log"
+{
 vault audit enable file file_path=/var/log/vault_audit.log
+
+ }||
+{
+  echo "--> worker-auth key already exists, moving on"
+}
+
 
 echo "==> Vault is done!"
