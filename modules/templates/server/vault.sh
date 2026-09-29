@@ -390,5 +390,7 @@ vault audit enable file file_path=/var/log/vault_audit.log
   echo "--> worker-auth key already exists, moving on"
 }
 
+echo "--> Restarting Datadog agent to apply configuration"
+sudo systemctl restart datadog-agent
 
 echo "==> Vault is done!"
