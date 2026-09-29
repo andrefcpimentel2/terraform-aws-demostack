@@ -219,7 +219,7 @@ logs:
     log_processing_rules:
       - type: multi_line
         name: vault_log_start
-        pattern: "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+        pattern: '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
   - type: file
     path: /var/log/vault/vault_audit.log
     source: vault
