@@ -181,6 +181,9 @@ fi
 #  sudo cp ~/.getenvoy/builds/standard/1.16.0/linux_glibc/bin/envoy /usr/bin/
 
 echo "--> Setup Datadog Monitoring Agent"
+sudo mkdir /var/log/vault
+sudo chmod -R 755 /var/log/vault
+
 
 DD_API_KEY=${dd_api_key} \
 DD_SITE="datadoghq.eu" \
