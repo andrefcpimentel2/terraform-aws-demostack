@@ -80,8 +80,11 @@ seal "awskms" {
   kms_key_id = "${kmskey}"
 }
 telemetry {
-  prometheus_retention_time = "30s",
-  disable_hostname = true
+  # prometheus_retention_time = "30s"
+  # disable_hostname          = true
+  unauthenticated_metrics_access = true
+  dogstatsd_addr            = "127.0.0.1:8125"
+  enable_hostname_label     = false
 }
 replication {
       resolver_discover_servers = false
@@ -373,5 +376,7 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
   echo "--> worker-auth key already exists, moving on"
 }
 
+echo "--> creating Vaultr audit log file
+vault audit enable file file_path=/var/log/vault_audit.log
 
 echo "==> Vault is done!"

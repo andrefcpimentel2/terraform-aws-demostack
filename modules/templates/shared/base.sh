@@ -180,19 +180,62 @@ fi
 #  getenvoy run standard:1.16.0 -- --version
 #  sudo cp ~/.getenvoy/builds/standard/1.16.0/linux_glibc/bin/envoy /usr/bin/
 
-#Setup Datadog Monitoring Agent
+echo "--> Setup Datadog Monitoring Agent"
 
-# DD_API_KEY=${dd_api_key} \
-# DD_SITE="datadoghq.eu" \
-# DD_APM_INSTRUMENTATION_ENABLED=host \
-# DD_DATA_STREAMS_ENABLED=true \
-# DD_PROFILING_ENABLED=auto \
-# DD_REMOTE_CONFIGURATION_ENABLED=true \
-# DD_APM_INSTRUMENTATION_LIBRARIES=java:1,python:4,js:5,php:1,dotnet:3,ruby:2 \
-# DD_LOGS_CONFIG_PROCESS_COLLECT_ALL=true \
-# bash -c "$(curl -L https://install.datadoghq.com/scripts/install_script_agent7.sh)"
+DD_API_KEY=${dd_api_key} \
+DD_SITE="datadoghq.eu" \
+DD_APM_INSTRUMENTATION_ENABLED=host \
+DD_DATA_STREAMS_ENABLED=true \
+DD_PROFILING_ENABLED=auto \
+DD_REMOTE_CONFIGURATION_ENABLED=true \
+DD_APM_INSTRUMENTATION_LIBRARIES=java:1,python:4,js:5,php:1,dotnet:3,ruby:2 \
+bash -c "$(curl -L https://install.datadoghq.com/scripts/install_script_agent7.sh)"
 
+echo "--> Writing Datadog agent configuration"
+sudo tee /etc/datadog-agent/datadog.yaml > /dev/null <<EOF
+api_key: ${dd_api_key}
+site: datadoghq.eu
 
-# sudo tee /etc/datadog-agent/datadog.yaml > /dev/null <<"EOF"
+# Enable log collection
+logs_enabled: true
+
+# Enable DogStatsD to receive Vault telemetry on the default UDP port 8125
+dogstatsd_port: 8125
+dogstatsd_non_local_traffic: false
+
+# Tags applied to all metrics, logs and traces from this host
+tags:
+  - env:demostack
+  - service:vault
+EOF
+
+echo "--> Writing Vault log collection config for Datadog"
+sudo mkdir -p /etc/datadog-agent/conf.d/vault.d
+sudo tee /etc/datadog-agent/conf.d/vault.d/conf.yaml > /dev/null <<EOF
+# init_config:
+
+# instances:
+#     ## @param api_url - string - required
+#     ## URL of the Vault to query.
+#   - api_url: http://localhost:8200/v1
+
+#     ## @param no_token - boolean - optional - default: false
+#     ## Attempt metric collection without a token.
+#     no_token: true
+logs:
+  - type: journald
+    source: vault
+    service: vault
+    log_processing_rules:
+      - type: multi_line
+        name: vault_log_start
+        pattern: "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+  - type: file
+    path: /var/log/vault_audit.log
+    source: vault
+EOF
+
+echo "--> Restarting Datadog agent to apply configuration"
+sudo systemctl restart datadog-agent
 
 echo "==> Base is done!"
