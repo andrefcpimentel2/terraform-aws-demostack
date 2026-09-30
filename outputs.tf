@@ -42,6 +42,13 @@ output "Boundary" {
   ]
 }
 
+output "rds_endpoint" {
+  value = [
+    for rds in module.cluster :
+    rds.rds_endpoint
+  ]
+}
+
 output "Servers" {
   value = [
     for server in module.cluster :
