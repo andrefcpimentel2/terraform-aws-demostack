@@ -45,7 +45,9 @@ output "boundary_ui" {
  # value = "troubleshooting"
 }
 
-
+output "rds_endpoint" {
+ value = aws_db_instance.mysql.endpoint
+}
 /*
 output "eks_endpoint" {
   value = aws_eks_cluster.eks.endpoint
