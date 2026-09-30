@@ -381,7 +381,43 @@ vault write -namespace=boundary  -f  transit/keys/worker-auth
   echo "--> worker-auth key already exists, moving on"
 }
 
+echo "--> creating vault DB secrets engine"
+{
+vault secrets enable database
+
+ }||
+{
+  echo "--> db secres engine already exists"
+}
+
+echo "--> config vault DB secrets engine"
+{
+vault write database/config/my-mysql-database \
+    plugin_name=mysql-database-plugin \
+    connection_url="{{username}}:{{password}}@tcp(${mysql_server})/" \
+    allowed_roles="my-role" \
+    username="${mysql_user}" \
+    password="${mysql_pass}" 
+ }||
+{
+  echo "--> db secres engine already config"
+}
+
+echo "--> config vault DB secrets engine role"
+{
+vault write database/roles/my-role \
+    db_name=${mysql_db} \
+    creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
+    default_ttl="1h" \
+    max_ttl="24h"
+ }||
+{
+  echo "--> db secres engine already config"
+}
+
 echo "--> Restarting Datadog agent to apply configuration"
 sudo systemctl restart datadog-agent
 
 echo "==> Vault is done!"
+
+

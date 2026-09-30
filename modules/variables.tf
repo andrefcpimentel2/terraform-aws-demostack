@@ -199,7 +199,7 @@ variable "mysql_username" {
 
 variable "mysql_password" {
   description = "Password that will be used to create the AWS mysql instance"
-  default     = "YourPwdShouldBeLongAndSecure!"
+  default     = "YourPwdShouldBeLongAndSecure123"
 }
 
   variable "mysql_db_name" {

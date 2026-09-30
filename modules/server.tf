@@ -68,6 +68,11 @@ data "cloudinit_config" "servers" {
     vault_join_tag_value = var.consul_join_tag_value
     # Nomad
     NOMAD_LB        = "$https://${aws_route53_record.nomad.fqdn}:4646"
+    # MySQL
+    mysql_user = var.mysql_username
+    mysql_pass = var.mysql_password
+    mysql_db = var.mysql_db_name
+    mysql_server = aws_db_instance.mysql.endpoint
     })
    }
 
