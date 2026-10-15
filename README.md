@@ -32,6 +32,3 @@ To begin debugging, check the cloud-init output:
 ```shell
 $ sudo tail -f /var/log/cloud-init-output.log
 ```
-
-Test on Radar commit with mock key:
-This is a mock AWS key: AKIAIOSFODNN7EXAMPLE
