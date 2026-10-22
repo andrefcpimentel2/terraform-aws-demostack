@@ -89,9 +89,8 @@ telemetry {
 replication {
       resolver_discover_servers = false
 }
-api_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8200"
+api_addr = "${vault_api_addr}"
 cluster_addr = "https://$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4):8201"
-#api_addr = "${vault_api_addr}"
 disable_mlock = true
 ui = true
 raw_storage_endpoint = true

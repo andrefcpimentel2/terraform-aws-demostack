@@ -29,7 +29,7 @@ output "fabio_lb" {
 }
 
 output "vault_ui" {
-  value = "https://${aws_route53_record.vault.fqdn}:8200"
+  value = "https://${aws_route53_record.vault.fqdn}"
 }
 
 output "nomad_ui" {

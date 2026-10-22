@@ -63,7 +63,7 @@ data "cloudinit_config" "servers" {
     namespace     = var.namespace
     vault_root_token = random_id.vault-root-token.hex
     vault_servers    = var.servers
-    vault_api_addr = "https://${aws_route53_record.vault.fqdn}:8200"
+    vault_api_addr = "https://${aws_route53_record.vault.fqdn}"
     vault_join_tag_key   = "VaultJoin"
     vault_join_tag_value = var.consul_join_tag_value
     # Nomad
@@ -82,7 +82,7 @@ data "cloudinit_config" "servers" {
     content      = templatefile("${path.module}/templates/server/nomad.sh",{
     node_name     = "${var.namespace}-server-${count.index}"
     # Nomad
-    vault_api_addr = "https://${aws_route53_record.vault.fqdn}:8200"
+    vault_api_addr = "https://${aws_route53_record.vault.fqdn}"
     nomad_gossip_key = var.nomad_gossip_key
     nomad_servers    = var.servers
     cni_version   = var.cni_version

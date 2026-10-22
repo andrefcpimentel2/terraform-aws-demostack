@@ -49,7 +49,7 @@ data "cloudinit_config" "workers" {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/templates/workers/nomad.sh", {
       node_name      = "${var.namespace}-worker-${count.index}"
-      vault_api_addr = "https://${aws_route53_record.vault.fqdn}:8200"
+      vault_api_addr = "https://${aws_route53_record.vault.fqdn}"
       # Nomad
       cni_version = var.cni_version
     })
